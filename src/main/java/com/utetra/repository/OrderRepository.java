@@ -51,4 +51,30 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             where o.status = com.utetra.entity.OrderStatus.DELIVERED
             """)
     BigDecimal revenueOfPlatform();
+
+    /** Don cua shop trong khoang thoi gian, dung cho bao cao doanh thu (tuan 5). */
+    @Query("""
+            select o from Order o
+            where o.shop = :shop and o.createdAt >= :from and o.createdAt < :to
+            order by o.id asc
+            """)
+    List<Order> ordersOfShopBetween(@Param("shop") Shop shop,
+                                    @Param("from") java.time.LocalDateTime from,
+                                    @Param("to") java.time.LocalDateTime to);
+
+    /** Don dang cho shipper nhan: da xac nhan va chua co ai nhan (tuan 5). */
+    Page<Order> findByStatusAndShipperIsNullOrderByIdAsc(OrderStatus status, Pageable pageable);
+
+    /** Thong ke cua shipper theo trang thai (tuan 5). */
+    long countByShipperAndStatus(User shipper, OrderStatus status);
+
+    /** Don cua shipper trong khoang thoi gian, dung cho thong ke COD (tuan 5). */
+    @Query("""
+            select o from Order o
+            where o.shipper = :shipper and o.createdAt >= :from and o.createdAt < :to
+            order by o.id asc
+            """)
+    List<Order> ordersOfShipperBetween(@Param("shipper") User shipper,
+                                       @Param("from") java.time.LocalDateTime from,
+                                       @Param("to") java.time.LocalDateTime to);
 }

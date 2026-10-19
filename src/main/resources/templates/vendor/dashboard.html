@@ -51,6 +51,9 @@
             <span class="badge text-bg-warning" th:if="${newOrderCount > 0}"
                   th:text="${newOrderCount}">0</span>
         </a>
+        <a class="btn btn-sm btn-outline-primary" th:href="@{/vendor/revenue}">
+            <i class="bi bi-graph-up-arrow"></i> Báo cáo doanh thu
+        </a>
     </div>
 
     <!-- Số liệu tổng quan -->
@@ -96,8 +99,8 @@
     <!-- Việc của các tuần sau sẽ được bổ sung dần vào đây -->
     <div class="alert alert-secondary mt-4 mb-0 small">
         Đã có: tuần 1 đăng ký và quản lý thông tin shop, tuần 2 quản lý sản phẩm / topping,
-        tuần 3 quản lý đơn hàng theo 7 trạng thái.
-        Tuần 4 bổ sung thanh toán VNPAY/MOMO và thông báo real-time, tuần 5 báo cáo doanh thu.
+        tuần 3 quản lý đơn hàng theo 7 trạng thái, tuần 4 thanh toán VNPAY/MOMO và thông báo
+        real-time, tuần 5 báo cáo doanh thu.
     </div>
 
 </div>
