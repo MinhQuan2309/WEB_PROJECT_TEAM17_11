@@ -10,6 +10,9 @@
 
 <div layout:fragment="content">
 
+    <!-- Thông báo real-time (tuần 4): đơn mới và đơn đổi trạng thái hiện ngay tại đây -->
+    <div id="realtimeToasts" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <h1 class="h4 mb-0">Đơn hàng của shop</h1>
         <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor}">Về dashboard</a>
@@ -36,7 +39,7 @@
     </ul>
 
     <div class="table-responsive">
-        <table class="table align-middle bg-white">
+        <table class="table align-middle bg-white" id="vendorOrdersTable">
             <thead>
             <tr>
                 <th>Mã đơn</th>
@@ -100,6 +103,15 @@
     <div th:replace="~{fragments/pagination :: pager(${orders}, '/vendor/orders')}"></div>
 
 </div>
+
+<th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+        window.utetraRealtime = { shopId: /*[[${shopId}]]*/ null };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script th:src="@{/js/order-realtime.js}"></script>
+</th:block>
 
 </body>
 </html>
