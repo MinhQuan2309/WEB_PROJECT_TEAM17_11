@@ -45,6 +45,10 @@ public class Shop extends BaseEntity {
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal commissionRate = new BigDecimal("10.00");
 
+    /** Ly do tu choi hoac tam dung, do Admin/Manager ghi khi kiem duyet. */
+    @Column(length = 500)
+    private String moderationNote;
+
     public User getOwner() { return owner; }
     public void setOwner(User owner) { this.owner = owner; }
     public User getManager() { return manager; }
@@ -65,4 +69,6 @@ public class Shop extends BaseEntity {
     public void setStatus(ShopStatus status) { this.status = status; }
     public BigDecimal getCommissionRate() { return commissionRate; }
     public void setCommissionRate(BigDecimal commissionRate) { this.commissionRate = commissionRate; }
+    public String getModerationNote() { return moderationNote; }
+    public void setModerationNote(String moderationNote) { this.moderationNote = moderationNote; }
 }

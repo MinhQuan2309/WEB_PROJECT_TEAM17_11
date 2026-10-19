@@ -45,6 +45,14 @@
         </div>
     </div>
 
+    <div class="mb-4">
+        <a class="btn btn-primary" th:href="@{/admin/shops}">
+            Kiểm duyệt shop
+            <span class="badge text-bg-light ms-1" th:if="${pendingShopCount > 0}"
+                  th:text="${pendingShopCount}">0</span>
+        </a>
+    </div>
+
     <div class="alert alert-secondary">
         Việc còn lại của khu vực này: quản lý người dùng, duyệt sản phẩm từng shop,
         quản lý danh mục, chiết khấu app, chương trình khuyến mãi, nhà vận chuyển.

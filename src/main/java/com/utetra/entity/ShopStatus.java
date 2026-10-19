@@ -3,6 +3,7 @@ package com.utetra.entity;
 public enum ShopStatus {
     PENDING("Cho duyet"),
     ACTIVE("Dang hoat dong"),
+    REJECTED("Bi tu choi"),
     SUSPENDED("Bi tam dung");
 
     private final String label;

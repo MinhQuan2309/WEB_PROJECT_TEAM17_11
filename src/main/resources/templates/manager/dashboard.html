@@ -12,6 +12,10 @@
     <h1 class="h4 mb-1">Khu vực quản lý</h1>
     <p class="text-muted">Chỉ thấy dữ liệu các shop được phân công (Shop.manager). Phần của Quân, tuần 4.</p>
 
+    <div class="mb-4">
+        <a class="btn btn-primary" th:href="@{/manager/shops}">Kiểm duyệt shop</a>
+    </div>
+
     <div class="alert alert-secondary mb-0">
         Dùng chung bộ màn hình với Admin nhưng giới hạn phạm vi theo
         <code>ShopRepository.findByManager(...)</code>.
