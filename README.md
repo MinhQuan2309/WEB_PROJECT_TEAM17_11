@@ -119,7 +119,11 @@ Chay bang dong lenh thi khong can buoc 3:
 
 ## Chay lan dau
 
-1. Tao database rong ten `utetra` trong SQL Server (cac bang se tu sinh, `ddl-auto=update`).
+1. Tao database rong ten `utetra` trong SQL Server (cac bang se tu sinh, `ddl-auto=update`):
+
+   ```sql
+   CREATE DATABASE utetra COLLATE Vietnamese_CI_AS;
+   ```
 2. Copy cau hinh rieng va dien mat khau:
 
    ```bash
@@ -178,6 +182,8 @@ mat khau da BCrypt va tim kiem san pham chay.
 - [x] Trang dang nhap, trang chu Guest (10 san pham ban chay), dashboard trong cho 4 khu vuc
 - [x] `CloudinaryService` va `ProductSearchService` — hai diem giao dung chung
 - [x] Test khoi dong tren H2 (7 test, `./mvnw test` xanh)
+- [x] Da chay that voi SQL Server: 21 bang duoc tao, seed vao du lieu, trang chu ra 10 san pham,
+      5 vai dang nhap vao dung khu vuc, khach bi chan khoi `/admin` (403)
 
 ### Diem giao san cho Hai va Thien
 
@@ -203,6 +209,15 @@ Diem bat dau cua tung nguoi:
 - [ ] Tuan 2: `POST /api/auth/login` tra JWT
 - [ ] Tuan 3: CRUD danh muc
 - [ ] Tuan 4: quan ly user, chiet khau app, khuyen mai san, nha van chuyen (`module/admin`, `module/manager`)
+
+### Luu y ve quan he LAZY trong template
+
+`spring.jpa.open-in-view=true` (mac dinh cua Spring Boot) nen trong Thymeleaf truy cap
+`product.shop.name` khong bi `LazyInitializationException`. Doi thanh `false` la trang chu gay ngay.
+
+Du vay, cho nao biet truoc se dung quan he nao thi van nen khai bao `@EntityGraph`
+hoac `JOIN FETCH` trong repository cho do ton truy van, nhu
+`ProductRepository.findTop10ByActiveTrueOrderBySoldCountDesc()` da lam.
 
 ### Luu y khi them entity moi
 

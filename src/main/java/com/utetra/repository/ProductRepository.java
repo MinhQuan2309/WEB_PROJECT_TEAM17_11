@@ -3,6 +3,7 @@ package com.utetra.repository;
 import com.utetra.entity.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -35,5 +36,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
     Page<Product> findByActiveTrueOrderByLikeCountDesc(Pageable pageable);
 
+    /**
+     * Nap kem shop va category trong cung mot truy van de trang chu khong phai
+     * ban them N cau SELECT (tranh N+1) va khong dinh LazyInitializationException.
+     */
+    @EntityGraph(attributePaths = {"shop", "category"})
     List<Product> findTop10ByActiveTrueOrderBySoldCountDesc();
 }
