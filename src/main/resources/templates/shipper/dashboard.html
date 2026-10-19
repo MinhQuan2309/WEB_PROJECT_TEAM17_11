@@ -4,18 +4,89 @@
       layout:decorate="~{layout/base}"
       lang="vi">
 <head>
-    <title>Đơn cần giao</title>
+    <title>Khu vực Shipper</title>
 </head>
 <body>
 
 <div layout:fragment="content">
-    <h1 class="h4 mb-1">Đơn cần giao</h1>
-    <p class="text-muted">Khu vực Shipper. Phần của Thiện.</p>
 
-    <div class="alert alert-secondary mb-0">
-        Việc của khu vực này: danh sách đơn được phân công
-        (<code>OrderRepository.findByShipperAndStatusOrderByIdDesc</code>),
-        cập nhật trạng thái đã lấy hàng - đang giao - đã giao, thống kê theo ngày và tháng.
+    <h1 class="h4 mb-1">Khu vực Shipper</h1>
+    <p class="text-muted">Xin chào <span th:text="${#authentication.name}">shipper</span>.</p>
+
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 border-warning">
+                <div class="card-body">
+                    <div class="text-muted small">Đang giao</div>
+                    <div class="h3 mb-0" th:text="${dangGiaoCount}">0</div>
+                    <a class="small" th:href="@{/shipper/orders}">Xem đơn của tôi</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 border-success">
+                <div class="card-body">
+                    <div class="text-muted small">Đã giao</div>
+                    <div class="h3 mb-0"
+                         th:text="${counts.get(T(com.utetra.entity.OrderStatus).DELIVERED)}">0</div>
+                    <a class="small" th:href="@{/shipper/orders(status='DELIVERED')}">Xem danh sách</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 border-danger">
+                <div class="card-body">
+                    <div class="text-muted small">Giao thất bại</div>
+                    <div class="h3 mb-0"
+                         th:text="${counts.get(T(com.utetra.entity.OrderStatus).RETURNED_REFUNDED)}">0</div>
+                    <a class="small" th:href="@{/shipper/orders(status='RETURNED_REFUNDED')}">Xem lý do</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 border-primary">
+                <div class="card-body">
+                    <div class="text-muted small">Đơn chờ nhận</div>
+                    <div class="h3 mb-0" th:text="${availableCount}">0</div>
+                    <a class="small" th:href="@{/shipper/available}">Nhận đơn ngay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">Tháng này</span>
+            <a class="btn btn-sm btn-outline-primary" th:href="@{/shipper/stats}">Thống kê chi tiết</a>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-6 col-md-3 mb-2">
+                    <div class="text-muted small">Đơn đã giao</div>
+                    <div class="h5 mb-0" th:text="${stats.deliveredCount}">0</div>
+                </div>
+                <div class="col-6 col-md-3 mb-2">
+                    <div class="text-muted small">Tiền COD đã thu</div>
+                    <div class="h5 mb-0 text-success"
+                         th:text="${#numbers.formatInteger(stats.codCollected, 0, 'POINT')} + ' đ'">0 đ</div>
+                </div>
+                <div class="col-6 col-md-3 mb-2">
+                    <div class="text-muted small">Phí giao hàng</div>
+                    <div class="h5 mb-0"
+                         th:text="${#numbers.formatInteger(stats.shippingFeeEarned, 0, 'POINT')} + ' đ'">0 đ</div>
+                </div>
+                <div class="col-6 col-md-3 mb-2">
+                    <div class="text-muted small">Đang giao</div>
+                    <div class="h5 mb-0" th:text="${stats.activeCount}">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-secondary small mb-0">
+        Quy trình: nhận đơn ở mục <strong>Đơn chờ nhận</strong> &rarr; <strong>Đã lấy hàng</strong>
+        &rarr; <strong>Đang giao</strong> &rarr; <strong>Giao thành công</strong> (thu tiền nếu là đơn COD)
+        hoặc <strong>Giao thất bại</strong> kèm lý do.
     </div>
 
 </div>

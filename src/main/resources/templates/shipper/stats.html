@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Thống kê giao hàng</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h4 mb-0">Thống kê giao hàng</h1>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/shipper}">Về trang chính</a>
+    </div>
+
+    <form class="row g-2 align-items-end mb-3" method="get" th:action="@{/shipper/stats}">
+        <div class="col-sm-3">
+            <label class="form-label" for="from">Từ ngày</label>
+            <input class="form-control" type="date" id="from" name="from" th:value="${stats.from}"/>
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label" for="to">Đến ngày</label>
+            <input class="form-control" type="date" id="to" name="to" th:value="${stats.to}"/>
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label" for="groupBy">Gộp theo</label>
+            <select class="form-select" id="groupBy" name="groupBy">
+                <option value="DAY" th:selected="${groupBy == 'DAY'}">Từng ngày</option>
+                <option value="MONTH" th:selected="${groupBy == 'MONTH'}">Từng tháng</option>
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <button class="btn btn-primary w-100" type="submit">Xem thống kê</button>
+        </div>
+    </form>
+
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 border-success">
+                <div class="card-body">
+                    <div class="text-muted small">Đơn đã giao</div>
+                    <div class="h4 mb-0" th:text="${stats.deliveredCount}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 border-danger">
+                <div class="card-body">
+                    <div class="text-muted small">Giao thất bại</div>
+                    <div class="h4 mb-0" th:text="${stats.failedCount}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Tiền COD đã thu</div>
+                    <div class="h4 mb-0"
+                         th:text="${#numbers.formatInteger(stats.codCollected, 0, 'POINT')} + ' đ'">0 đ</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Phí giao hàng</div>
+                    <div class="h4 mb-0"
+                         th:text="${#numbers.formatInteger(stats.shippingFeeEarned, 0, 'POINT')} + ' đ'">0 đ</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Đơn đã giao theo thời gian</div>
+                <div class="card-body">
+                    <canvas id="shipperChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Tổng hợp theo trạng thái</div>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                        <tr>
+                            <td>Đang giao (đã nhận, chưa xong)</td>
+                            <td class="text-end" th:text="${stats.activeCount}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Đã giao thành công</td>
+                            <td class="text-end" th:text="${stats.deliveredCount}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Giao thất bại / trả hàng</td>
+                            <td class="text-end" th:text="${stats.failedCount}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Chờ nhận (chưa ai nhận)</td>
+                            <td class="text-end" th:text="${availableCount}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header fw-semibold">Bảng chi tiết</div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead>
+                <tr>
+                    <th th:text="${groupBy == 'MONTH'} ? 'Tháng' : 'Ngày'">Mốc</th>
+                    <th class="text-center">Đơn đã giao</th>
+                    <th class="text-end">Tiền COD</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${stats.series}">
+                    <td th:text="${d.label}">01/01</td>
+                    <td class="text-center" th:text="${d.delivered}">0</td>
+                    <td class="text-end"
+                        th:text="${#numbers.formatInteger(d.cod, 0, 'POINT')} + ' đ'">0 đ</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p class="text-muted small mt-3">
+        Thống kê tính theo các đơn được phân công cho chính tài khoản đang đăng nhập.
+        Tiền COD chỉ tính đơn giao khi nhận hàng; đơn đã trả trước không tính vào tiền thu hộ.
+    </p>
+
+</div>
+
+<th:block layout:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script th:inline="javascript">
+        (function () {
+            var host = document.getElementById('shipperChart');
+            if (!host || typeof Chart === 'undefined') {
+                return; // Không có mạng thì bảng chi tiết vẫn dùng được.
+            }
+            var labels = /*[[${stats.series.![label]}]]*/ [];
+            var values = /*[[${stats.series.![delivered]}]]*/ [];
+            new Chart(host, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Đơn đã giao',
+                        data: values,
+                        backgroundColor: 'rgba(25, 135, 84, 0.6)'
+                    }]
+                },
+                options: {
+                    plugins: {legend: {display: false}},
+                    scales: {y: {beginAtZero: true, ticks: {precision: 0}}}
+                }
+            });
+        })();
+    </script>
+</th:block>
+
+</body>
+</html>

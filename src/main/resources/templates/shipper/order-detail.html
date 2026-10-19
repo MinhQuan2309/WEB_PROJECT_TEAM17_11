@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title th:text="'Giao đơn ' + ${order.code}">Chi tiết đơn giao</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h4 mb-0">
+            Đơn <span th:text="${order.code}">DH0001</span>
+            <span class="badge align-middle"
+                  th:classappend="${order.status.name() == 'DELIVERED'} ? 'text-bg-success'
+                                : (${order.status.name() == 'RETURNED_REFUNDED' or order.status.name() == 'CANCELLED'} ? 'text-bg-danger'
+                                : (${order.status.name() == 'SHIPPING'} ? 'text-bg-primary' : 'text-bg-warning'))"
+                  th:text="${order.status.label}">Trạng thái</span>
+        </h1>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/shipper/orders}">Danh sách đơn</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+    <div class="alert alert-danger" th:if="${formError != null}" th:text="${formError}"></div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+
+            <div class="card mb-3 border-success" th:if="${codRequired}">
+                <div class="card-body">
+                    <div class="text-muted small">Thu hộ khi giao (COD)</div>
+                    <div class="h3 mb-0 text-success"
+                         th:text="${#numbers.formatInteger(codAmount, 0, 'POINT')} + ' đ'">0 đ</div>
+                </div>
+            </div>
+
+            <div class="card mb-3" th:if="${!codRequired}">
+                <div class="card-body text-muted">
+                    Đơn này đã thanh toán trước, shipper <strong>không thu tiền</strong> của khách.
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Món cần giao</div>
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                        <tr>
+                            <th>Món</th>
+                            <th>Size / topping</th>
+                            <th class="text-center">SL</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="i : ${items}">
+                            <td th:text="${i.productName}">Tên món</td>
+                            <td class="small text-muted">
+                                <span th:if="${i.variantName != null}" th:text="${i.variantName}">Size</span>
+                                <span th:if="${i.toppingsText != null}" th:text="' + ' + ${i.toppingsText}"></span>
+                            </td>
+                            <td class="text-center" th:text="${i.quantity}">1</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mb-3" th:if="${!nextStates.isEmpty()}">
+                <div class="card-header fw-semibold">Cập nhật trạng thái giao hàng</div>
+                <div class="card-body">
+                    <form th:action="@{'/shipper/orders/' + ${order.id} + '/status'}" method="post"
+                          class="row g-2 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label" for="status">Trạng thái mới</label>
+                            <select id="status" name="status" class="form-select">
+                                <option th:each="next : ${nextStates}" th:value="${next.name()}"
+                                        th:text="${next.label}">Bước tiếp</option>
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label" for="failedReason">
+                                Lý do giao thất bại (bắt buộc khi chọn trả hàng - hoàn tiền)
+                            </label>
+                            <input id="failedReason" name="failedReason" class="form-control" maxlength="200"
+                                   placeholder="Khách không nghe máy / sai địa chỉ / khách từ chối nhận..."/>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="note">Ghi chú thêm (không bắt buộc)</label>
+                            <input id="note" name="note" class="form-control" maxlength="200"/>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-arrow-repeat"></i> Cập nhật
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="alert alert-secondary" th:if="${nextStates.isEmpty()}">
+                Đơn đã kết thúc, không cập nhật được nữa.
+            </div>
+
+            <div class="card mb-3" th:if="${order.note != null}">
+                <div class="card-header fw-semibold">Ghi chú đơn hàng</div>
+                <div class="card-body">
+                    <pre class="mb-0 small" style="white-space:pre-wrap" th:text="${order.note}">Ghi chú</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-5">
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Người nhận</div>
+                <div class="card-body small">
+                    <div class="fw-semibold" th:text="${order.receiverName}">Tên</div>
+                    <div>
+                        <a th:href="'tel:' + ${order.receiverPhone}" th:text="${order.receiverPhone}">SĐT</a>
+                    </div>
+                    <div class="text-muted" th:text="${order.shippingAddress}">Địa chỉ</div>
+                    <a class="btn btn-sm btn-outline-primary mt-2"
+                       th:href="'https://www.google.com/maps/search/?api=1&query=' + ${#uris.escapeQueryParam(order.shippingAddress)}"
+                       target="_blank" rel="noopener">
+                        <i class="bi bi-geo-alt"></i> Mở bản đồ
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Điểm lấy hàng</div>
+                <div class="card-body small">
+                    <div class="fw-semibold" th:text="${order.shop.name}">Shop</div>
+                    <div class="text-muted" th:text="${order.shop.address}">Địa chỉ shop</div>
+                    <a class="btn btn-sm btn-outline-primary mt-2"
+                       th:href="'https://www.google.com/maps/search/?api=1&query=' + ${#uris.escapeQueryParam(order.shop.address)}"
+                       target="_blank" rel="noopener">
+                        <i class="bi bi-geo-alt"></i> Mở bản đồ
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Thông tin giao hàng</div>
+                <div class="card-body small">
+                    <div th:if="${shipment == null}" class="text-muted">
+                        Chưa có bản ghi giao hàng (nhận đơn để tạo).
+                    </div>
+                    <div th:if="${shipment != null}">
+                        <div>Mã vận đơn:
+                            <span th:text="${shipment.trackingCode != null} ? ${shipment.trackingCode} : '-'">-</span>
+                        </div>
+                        <div>Nhà vận chuyển:
+                            <span th:text="${shipment.carrier != null} ? ${shipment.carrier.name} : '-'">-</span>
+                        </div>
+                        <div>Phí giao hàng:
+                            <span th:text="${#numbers.formatInteger(shipment.fee, 0, 'POINT')} + ' đ'">0 đ</span>
+                        </div>
+                        <div class="text-muted" th:if="${shipment.assignedAt != null}"
+                             th:text="'Nhận đơn ' + ${#temporals.format(shipment.assignedAt, 'dd/MM HH:mm')}">-</div>
+                        <div class="text-muted" th:if="${shipment.pickedUpAt != null}"
+                             th:text="'Lấy hàng ' + ${#temporals.format(shipment.pickedUpAt, 'dd/MM HH:mm')}">-</div>
+                        <div class="text-muted" th:if="${shipment.deliveredAt != null}"
+                             th:text="'Giao xong ' + ${#temporals.format(shipment.deliveredAt, 'dd/MM HH:mm')}">-</div>
+                        <div class="text-danger" th:if="${shipment.failedReason != null}"
+                             th:text="'Lý do thất bại: ' + ${shipment.failedReason}">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Tiền hàng</div>
+                <div class="card-body small">
+                    <div class="d-flex justify-content-between">
+                        <span>Khách trả</span>
+                        <span th:text="${#numbers.formatInteger(order.total, 0, 'POINT')} + ' đ'">0 đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Phương thức</span>
+                        <span th:text="${order.paymentMethod.label}">COD</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Thanh toán</span>
+                        <span th:text="${order.paymentStatus}">PENDING</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
