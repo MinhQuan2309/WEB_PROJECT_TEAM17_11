@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title th:text="'Đơn ' + ${order.code}">Chi tiết đơn</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h4 mb-0">
+            Đơn hàng <span th:text="${order.code}">DH0001</span>
+            <span class="badge align-middle"
+                  th:classappend="${order.status.name() == 'DELIVERED'} ? 'text-bg-success'
+                                : (${order.status.name() == 'CANCELLED' or order.status.name() == 'RETURNED_REFUNDED'} ? 'text-bg-danger'
+                                : (${order.status.name() == 'NEW'} ? 'text-bg-warning' : 'text-bg-info'))"
+                  th:text="${order.status.label}">Trạng thái</span>
+        </h1>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor/orders}">Danh sách đơn</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+    <div class="alert alert-danger" th:if="${formError != null}" th:text="${formError}"></div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+
+            <!-- Món trong đơn -->
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Món trong đơn</div>
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                        <tr>
+                            <th>Món</th>
+                            <th>Size / topping</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="i : ${items}">
+                            <td th:text="${i.productName}">Tên món</td>
+                            <td class="small text-muted">
+                                <span th:if="${i.variantName != null}" th:text="${i.variantName}">Size</span>
+                                <span th:if="${i.toppingsText != null}" th:text="' + ' + ${i.toppingsText}"></span>
+                            </td>
+                            <td class="text-end"
+                                th:text="${#numbers.formatInteger(i.unitPrice, 0, 'POINT')} + ' đ'">0 đ</td>
+                            <td class="text-center" th:text="${i.quantity}">1</td>
+                            <td class="text-end"
+                                th:text="${#numbers.formatInteger(i.lineTotal, 0, 'POINT')} + ' đ'">0 đ</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="4" class="text-end">Tạm tính</td>
+                            <td class="text-end"
+                                th:text="${#numbers.formatInteger(order.subtotal, 0, 'POINT')} + ' đ'">0 đ</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="text-end">Phí giao hàng</td>
+                            <td class="text-end"
+                                th:text="${#numbers.formatInteger(order.shippingFee, 0, 'POINT')} + ' đ'">0 đ</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="text-end">Giảm giá</td>
+                            <td class="text-end text-danger"
+                                th:text="'-' + ${#numbers.formatInteger(order.discount, 0, 'POINT')} + ' đ'">0 đ</td>
+                        </tr>
+                        <tr class="fw-bold">
+                            <td colspan="4" class="text-end">Khách trả</td>
+                            <td class="text-end"
+                                th:text="${#numbers.formatInteger(order.total, 0, 'POINT')} + ' đ'">0 đ</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Đổi trạng thái -->
+            <div class="card mb-3" th:if="${!nextStates.isEmpty()}">
+                <div class="card-header fw-semibold">Chuyển trạng thái đơn</div>
+                <div class="card-body">
+                    <form th:action="@{'/vendor/orders/' + ${order.id} + '/status'}" method="post"
+                          class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label" for="status">Trạng thái mới</label>
+                            <select id="status" name="status" class="form-select">
+                                <option th:each="next : ${nextStates}" th:value="${next.name()}"
+                                        th:text="${next.label}">Bước tiếp</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="note">Lý do / ghi chú (không bắt buộc)</label>
+                            <input id="note" name="note" type="text" class="form-control" maxlength="200"
+                                   placeholder="Ví dụ: hết nguyên liệu, khách đổi ý..."/>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-arrow-repeat"></i> Cập nhật
+                            </button>
+                        </div>
+                    </form>
+                    <p class="text-muted small mb-0 mt-2">
+                        Chỉ hiện các bước hợp lệ của trạng thái hiện tại. Lý do ghi vào ghi chú đơn hàng,
+                        không ghi đè ghi chú của khách.
+                    </p>
+                </div>
+            </div>
+            <div class="alert alert-secondary" th:if="${nextStates.isEmpty()}">
+                Đơn đã ở trạng thái kết thúc, không đổi được nữa.
+            </div>
+
+            <div class="card mb-3" th:if="${order.note != null}">
+                <div class="card-header fw-semibold">Ghi chú đơn hàng</div>
+                <div class="card-body">
+                    <pre class="mb-0 small" style="white-space:pre-wrap" th:text="${order.note}">Ghi chú</pre>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Người nhận</div>
+                <div class="card-body small">
+                    <div class="fw-semibold" th:text="${order.receiverName}">Tên</div>
+                    <div th:text="${order.receiverPhone}">SĐT</div>
+                    <div class="text-muted" th:text="${order.shippingAddress}">Địa chỉ</div>
+                    <hr/>
+                    <div>
+                        Thanh toán:
+                        <strong th:text="${order.paymentMethod.label}">COD</strong>
+                        <span class="badge text-bg-light" th:text="${order.paymentStatus}">PENDING</span>
+                    </div>
+                    <div class="text-muted"
+                         th:text="'Đặt lúc ' + ${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">ngày</div>
+                </div>
+            </div>
+
+            <div class="card mb-3" th:if="${payment != null}">
+                <div class="card-header fw-semibold">Giao dịch thanh toán</div>
+                <div class="card-body small">
+                    <div>Mã giao dịch:
+                        <span th:text="${payment.transactionId != null} ? ${payment.transactionId} : 'chưa có'">-</span>
+                    </div>
+                    <div>Số tiền:
+                        <span th:text="${#numbers.formatInteger(payment.amount, 0, 'POINT')} + ' đ'">0 đ</span>
+                    </div>
+                    <div>Trạng thái: <span th:text="${payment.status}">PENDING</span></div>
+                    <div class="text-muted" th:if="${payment.paidAt != null}"
+                         th:text="'Trả lúc ' + ${#temporals.format(payment.paidAt, 'dd/MM/yyyy HH:mm')}">-</div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Giao hàng</div>
+                <div class="card-body small">
+                    <div th:if="${shipment == null}" class="text-muted">
+                        Chưa có thông tin giao hàng (chờ phân công shipper).
+                    </div>
+                    <div th:if="${shipment != null}">
+                        <div>Shipper:
+                            <span th:text="${shipment.shipper != null} ? ${shipment.shipper.fullName} : 'chưa phân công'">-</span>
+                        </div>
+                        <div>Nhà vận chuyển:
+                            <span th:text="${shipment.carrier != null} ? ${shipment.carrier.name} : '-'">-</span>
+                        </div>
+                        <div>Mã vận đơn:
+                            <span th:text="${shipment.trackingCode != null} ? ${shipment.trackingCode} : '-'">-</span>
+                        </div>
+                        <div class="text-muted" th:if="${shipment.assignedAt != null}"
+                             th:text="'Nhận đơn ' + ${#temporals.format(shipment.assignedAt, 'dd/MM HH:mm')}">-</div>
+                        <div class="text-muted" th:if="${shipment.deliveredAt != null}"
+                             th:text="'Giao xong ' + ${#temporals.format(shipment.deliveredAt, 'dd/MM HH:mm')}">-</div>
+                        <div class="text-danger" th:if="${shipment.failedReason != null}"
+                             th:text="'Lý do thất bại: ' + ${shipment.failedReason}">-</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
