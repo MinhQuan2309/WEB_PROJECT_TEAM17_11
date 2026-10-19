@@ -82,11 +82,40 @@ Luat nhom:
 
 ## Yeu cau moi truong
 
-- JDK 21 (ban LTS) la khuyen nghi. Du an da build va test duoc tren JDK 26 nhung Spring Boot 3.3
-  chi ho tro chinh thuc den JDK 23, nen de an toan hay cai JDK 21 va tro `JAVA_HOME` vao do.
-- Maven 3.9+
-- SQL Server dang chay (mac dinh). Muon dung MySQL/PostgreSQL thi bo comment driver trong
-  `pom.xml` va khoi datasource tuong ung trong `application.properties`.
+Ba nguoi khong can cai trung phien ban nhau. Du an da chot san:
+
+| Thanh phan | Rang buoc | Vi sao khong lo lech phien ban |
+|---|---|---|
+| **JDK** | **17 tro len** (17, 21, 23, 26 deu chay) | `pom.xml` dat `java.version=17` nen Maven luon bien dich ra bytecode 17, bat ke may ai dang cai JDK nao |
+| **Maven** | Khong can cai | Repo co san `mvnw` / `mvnw.cmd` (Maven Wrapper). Chay `./mvnw` la no tu tai dung Maven 3.9.11 |
+| **Thu vien** | Da ghim trong `pom.xml` | Spring Boot 3.3.5 quan ly phien ban tat ca thu vien, ai build cung ra ban giong nhau |
+| **CSDL** | SQL Server (mac dinh) | Bang tu sinh bang `ddl-auto=update`, moi nguoi tu tao database rong ten `utetra` tren may minh |
+| **Mat khau DB** | Moi nguoi mot file rieng | `application-local.properties` khong commit nen khong ai de len cau hinh cua ai |
+
+Cho khac nhau duy nhat phai tu lo: mat khau SQL Server cua may minh (va key Gmail/Cloudinary neu lam
+den phan do). Tat ca nam trong `application-local.properties`.
+
+Muon dung MySQL/PostgreSQL thay SQL Server thi bo comment driver trong `pom.xml` va khoi datasource
+tuong ung trong `application.properties` — nhung ca nhom nen dung chung mot he CSDL cho do lech.
+
+### Mo bang Spring Tools (STS)
+
+1. `File` > `Import...` > `Maven` > **Existing Maven Projects** > tro vao thu muc `WEB_PROJECT_TEAM17_11`
+   (dung `Import > General > Existing Projects`, vi nhu vay STS khong nhan ra la project Maven).
+2. Doi STS tai thu vien lan dau (vai phut, thanh tien do goc duoi phai).
+3. Kiem tra JDK: chuot phai project > `Properties` > `Java Build Path` > `Libraries`. Neu bao
+   loi kieu "requires Java 17" thi vao `Window` > `Preferences` > `Java` > `Installed JREs`
+   chon JDK 17 tro len.
+4. Tao `application-local.properties` (xem muc duoi) roi chuot phai project >
+   `Run As` > **Spring Boot App**.
+
+Chay bang dong lenh thi khong can buoc 3:
+
+```bash
+./mvnw spring-boot:run
+```
+
+(Windows CMD/PowerShell dung `mvnw.cmd spring-boot:run`.)
 
 ## Chay lan dau
 
@@ -102,7 +131,7 @@ Luat nhom:
 3. Chay:
 
    ```bash
-   mvn spring-boot:run
+   ./mvnw spring-boot:run
    ```
 
 4. Mo http://localhost:8080
@@ -128,7 +157,7 @@ ve dung khu vuc cua minh.
 ### Kiem tra nhanh khong can CSDL
 
 ```bash
-mvn test
+./mvnw test
 ```
 
 Test chay tren H2 trong bo nho: kiem tra context len duoc, repository hop le, du lieu mau dung,
@@ -148,7 +177,7 @@ mat khau da BCrypt va tim kiem san pham chay.
 - [x] Layout Bootstrap (`layout/base.html`) + fragment navbar / footer / pagination / product-card
 - [x] Trang dang nhap, trang chu Guest (10 san pham ban chay), dashboard trong cho 4 khu vuc
 - [x] `CloudinaryService` va `ProductSearchService` — hai diem giao dung chung
-- [x] Test khoi dong tren H2 (6 test, `mvn test` xanh)
+- [x] Test khoi dong tren H2 (6 test, `./mvnw test` xanh)
 
 ### Diem giao san cho Hai va Thien
 

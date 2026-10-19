@@ -1,0 +1,15 @@
+# Chuan hoa xuong dong de 3 may Windows/Linux khong bi bao "thay doi ca file"
+* text=auto
+
+# Script shell phai la LF, script Windows phai la CRLF
+mvnw        text eol=lf
+*.sh        text eol=lf
+mvnw.cmd    text eol=crlf
+*.bat       text eol=crlf
+
+# File nhi phan: khong dung cham
+*.docx  binary
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jar   binary
