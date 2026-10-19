@@ -4,6 +4,9 @@ import com.utetra.entity.Role;
 import com.utetra.module.search.ProductSearchService;
 import com.utetra.module.search.dto.ProductFilter;
 import com.utetra.repository.CarrierRepository;
+import com.utetra.repository.PaymentRepository;
+import com.utetra.repository.PromotionRepository;
+import com.utetra.repository.ShipmentRepository;
 import com.utetra.repository.VoucherRepository;
 import com.utetra.repository.CategoryRepository;
 import com.utetra.repository.ProductRepository;
@@ -31,6 +34,9 @@ class UtetraApplicationTests {
     @Autowired ProductRepository productRepository;
     @Autowired CarrierRepository carrierRepository;
     @Autowired VoucherRepository voucherRepository;
+    @Autowired PaymentRepository paymentRepository;
+    @Autowired PromotionRepository promotionRepository;
+    @Autowired ShipmentRepository shipmentRepository;
     @Autowired ProductSearchService productSearchService;
     @Autowired PasswordEncoder passwordEncoder;
 
@@ -73,6 +79,16 @@ class UtetraApplicationTests {
     @Test
     void bangVoucherTruyVanDuoc() {
         assertEquals(0, voucherRepository.findByShopIsNullAndActiveTrue().size());
+    }
+
+    /** Bang moi phai tao duoc va truy van duoc, tranh lap lai loi cot "value". */
+    @Test
+    void cacBangThanhToanKhuyenMaiGiaoHangTruyVanDuoc() {
+        assertEquals(0, paymentRepository.count());
+        assertEquals(0, promotionRepository.count());
+        assertEquals(0, shipmentRepository.count());
+        assertTrue(promotionRepository.findByShopIsNullAndActiveTrue().isEmpty());
+        assertTrue(promotionRepository.findRunning(java.time.LocalDateTime.now(), null).isEmpty());
     }
 
     @Test

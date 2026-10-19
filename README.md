@@ -171,13 +171,13 @@ mat khau da BCrypt va tim kiem san pham chay.
 - [x] `application.properties` + `application-local.properties.example` (khong commit mat khau)
 - [x] Enum 5 vai `Role` (USER, VENDOR, MANAGER, ADMIN, SHIPPER) va 7 trang thai don `OrderStatus`
 - [x] Mo hinh san nhieu shop: entity trung tam la `Shop` (khong con `Branch`)
-- [x] 24 entity + `BaseEntity`, 17 repository
+- [x] 27 entity + `BaseEntity`, 20 repository (du toan bo ERD trong tai lieu phan cong)
 - [x] `SecurityConfig`: phan quyen 5 vai, BCrypt, form login, JWT cho `/api/**`
 - [x] `DataSeeder`: du lieu mau
 - [x] Layout Bootstrap (`layout/base.html`) + fragment navbar / footer / pagination / product-card
 - [x] Trang dang nhap, trang chu Guest (10 san pham ban chay), dashboard trong cho 4 khu vuc
 - [x] `CloudinaryService` va `ProductSearchService` — hai diem giao dung chung
-- [x] Test khoi dong tren H2 (6 test, `./mvnw test` xanh)
+- [x] Test khoi dong tren H2 (7 test, `./mvnw test` xanh)
 
 ### Diem giao san cho Hai va Thien
 
@@ -187,7 +187,7 @@ Ba interface/service dung chung da san sang, khong ai phai cho ai:
 |---|---|---|
 | Upload anh/video | `cloudinaryService.upload(file, "products")` tra ve URL | Quan (xong) |
 | Tim kiem & loc san pham | `productSearchService.search(filter, page, size)` voi `ProductFilter` | Quan (xong) |
-| Thanh toan | `PaymentStrategy.createPayment(order)` | Thien (tuan 4) |
+| Thanh toan | `PaymentStrategy.createPayment(order)`, luu vao entity `Payment` | Thien (tuan 4) |
 | Day trang thai don real-time | `OrderStatusPublisher.publish(order)` | Thien (tuan 4) |
 
 Diem bat dau cua tung nguoi:
