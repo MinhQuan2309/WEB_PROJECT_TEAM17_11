@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Shop của tôi</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <h1 class="h4 mb-1">Shop của tôi</h1>
+    <p class="text-muted">Khu vực Vendor. Phần của Thiện.</p>
+
+    <div class="alert alert-secondary mb-0">
+        Việc của khu vực này: đăng ký shop, quản lý trang chủ shop, CRUD sản phẩm và topping,
+        quản lý đơn hàng theo 7 trạng thái, tạo khuyến mãi, báo cáo doanh thu.
+        Upload ảnh gọi <code>CloudinaryService.upload(file, "products")</code>.
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -82,15 +82,101 @@ Luat nhom:
 
 ## Yeu cau moi truong
 
-- JDK 21 (ban LTS). May dang cai JDK 26 — Spring Boot 3.3 chua ho tro, nen cai them JDK 21 va tro `JAVA_HOME` vao do.
+- JDK 21 (ban LTS) la khuyen nghi. Du an da build va test duoc tren JDK 26 nhung Spring Boot 3.3
+  chi ho tro chinh thuc den JDK 23, nen de an toan hay cai JDK 21 va tro `JAVA_HOME` vao do.
 - Maven 3.9+
-- Mot CSDL dang chay: SQL Server / MySQL / PostgreSQL
+- SQL Server dang chay (mac dinh). Muon dung MySQL/PostgreSQL thi bo comment driver trong
+  `pom.xml` va khoi datasource tuong ung trong `application.properties`.
+
+## Chay lan dau
+
+1. Tao database rong ten `utetra` trong SQL Server (cac bang se tu sinh, `ddl-auto=update`).
+2. Copy cau hinh rieng va dien mat khau:
+
+   ```bash
+   cp src/main/resources/application-local.properties.example src/main/resources/application-local.properties
+   ```
+
+   File `application-local.properties` nam trong `.gitignore` nen khong bi day len GitHub.
+   Toi thieu phai dien `spring.datasource.username` va `spring.datasource.password`.
+3. Chay:
+
+   ```bash
+   mvn spring-boot:run
+   ```
+
+4. Mo http://localhost:8080
+
+Lan dau chay, `DataSeeder` tu tao du lieu mau (6 tai khoan, 2 shop, 4 danh muc, 12 san pham,
+topping, 3 nha van chuyen). Xong roi doi `app.seed.enabled=false` trong `application.properties`.
+
+### Tai khoan mau
+
+Mat khau tat ca deu la `123456` (chi dung khi hoc).
+
+| Tai khoan | Vai | Vao duoc |
+|---|---|---|
+| `admin` | ADMIN | `/admin` |
+| `manager` | MANAGER | `/manager` |
+| `vendor1`, `vendor2` | VENDOR | `/vendor` |
+| `khach` | USER | `/account`, `/cart`, `/orders` |
+| `shipper` | SHIPPER | `/shipper` |
+
+Dang nhap duoc bang username hoac email. Sau khi dang nhap, `LoginSuccessHandler` tu dua moi vai
+ve dung khu vuc cua minh.
+
+### Kiem tra nhanh khong can CSDL
+
+```bash
+mvn test
+```
+
+Test chay tren H2 trong bo nho: kiem tra context len duoc, repository hop le, du lieu mau dung,
+mat khau da BCrypt va tim kiem san pham chay.
 
 ## Trang thai hien tai
 
-Repo dang la **suon thu muc**. Buoc tiep theo (tuan 1):
+**Tuan 1 (phan cua Quan) da xong** — bo khung chay duoc, hai nguoi con lai bat dau duoc ngay:
 
-- [ ] Quan: tao `pom.xml`, `application.properties`, entity + enum 5 vai (USER, VENDOR, MANAGER, ADMIN, SHIPPER), doi `Branch` thanh `Shop`
-- [ ] Quan: layout `base.html` + chon template Bootstrap
-- [ ] Hai: trang chu Guest
-- [ ] Thien: dang ky shop
+- [x] `pom.xml` (Spring Boot 3.3.5, Thymeleaf + Layout Dialect, Security, JPA, Mail, WebSocket, JWT, Cloudinary)
+- [x] `application.properties` + `application-local.properties.example` (khong commit mat khau)
+- [x] Enum 5 vai `Role` (USER, VENDOR, MANAGER, ADMIN, SHIPPER) va 7 trang thai don `OrderStatus`
+- [x] Mo hinh san nhieu shop: entity trung tam la `Shop` (khong con `Branch`)
+- [x] 24 entity + `BaseEntity`, 17 repository
+- [x] `SecurityConfig`: phan quyen 5 vai, BCrypt, form login, JWT cho `/api/**`
+- [x] `DataSeeder`: du lieu mau
+- [x] Layout Bootstrap (`layout/base.html`) + fragment navbar / footer / pagination / product-card
+- [x] Trang dang nhap, trang chu Guest (10 san pham ban chay), dashboard trong cho 4 khu vuc
+- [x] `CloudinaryService` va `ProductSearchService` — hai diem giao dung chung
+- [x] Test khoi dong tren H2 (6 test, `mvn test` xanh)
+
+### Diem giao san cho Hai va Thien
+
+Ba interface/service dung chung da san sang, khong ai phai cho ai:
+
+| Dung de | Goi nhu the nao | Ai viet |
+|---|---|---|
+| Upload anh/video | `cloudinaryService.upload(file, "products")` tra ve URL | Quan (xong) |
+| Tim kiem & loc san pham | `productSearchService.search(filter, page, size)` voi `ProductFilter` | Quan (xong) |
+| Thanh toan | `PaymentStrategy.createPayment(order)` | Thien (tuan 4) |
+| Day trang thai don real-time | `OrderStatusPublisher.publish(order)` | Thien (tuan 4) |
+
+Diem bat dau cua tung nguoi:
+
+- **Hai**: `module/catalog/HomeController.java` (da co trang chu Guest) va `templates/home/index.html`.
+  Lam tiep trang chu User 4 block 20 san pham, trang danh muc, chi tiet san pham, roi `cart` va `checkout`.
+- **Thien**: `module/vendor/VendorHomeController.java` va `module/shipper/ShipperHomeController.java`
+  (route da duoc phan quyen san). Lam tiep dang ky shop, CRUD san pham, don hang theo 7 trang thai.
+
+### Con lai cua Quan
+
+- [ ] Tuan 2: dang ky + OTP email, kich hoat tai khoan, quen mat khau, dat lai mat khau (`module/auth`)
+- [ ] Tuan 2: `POST /api/auth/login` tra JWT
+- [ ] Tuan 3: CRUD danh muc
+- [ ] Tuan 4: quan ly user, chiet khau app, khuyen mai san, nha van chuyen (`module/admin`, `module/manager`)
+
+### Luu y khi them entity moi
+
+Tranh dat ten cot trung tu khoa SQL. Cot `value` cua `Voucher` da phai doi thanh
+`discount_value` vi H2/SQL Server khong chiu. Gap loi "Syntax error in SQL statement ... create table"
+thi kiem tra cho nay truoc.

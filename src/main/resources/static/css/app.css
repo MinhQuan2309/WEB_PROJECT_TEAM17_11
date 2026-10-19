@@ -1,0 +1,36 @@
+/* Giao diện dùng chung. Mỗi người thêm file CSS riêng theo module
+   (vendor.css, cart.css...) để tránh sửa chung một file. */
+
+:root {
+    --utetra-brown: #5b3a29;
+    --utetra-cream: #f6efe7;
+    --utetra-accent: #c77b4a;
+}
+
+body {
+    background-color: #fcfaf8;
+}
+
+.utetra-navbar {
+    background-color: var(--utetra-brown);
+}
+
+.utetra-hero {
+    background-color: var(--utetra-cream);
+    border: 1px solid #ecdfd2;
+}
+
+.product-card {
+    position: relative;
+    transition: box-shadow .15s ease-in-out, transform .15s ease-in-out;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .08);
+}
+
+.product-thumb {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}

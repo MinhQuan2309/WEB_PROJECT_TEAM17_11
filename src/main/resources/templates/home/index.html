@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Trang chủ</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="p-4 mb-4 rounded-3 utetra-hero">
+        <h1 class="h3 mb-2">Trà sữa UTETra</h1>
+        <p class="mb-0">Đặt nhanh, nhận nhanh. Chọn size, topping và mức đường/đá theo ý bạn.</p>
+    </div>
+
+    <div class="mb-4" th:if="${categories != null and !categories.isEmpty()}">
+        <h2 class="h6 text-uppercase text-muted mb-3">Danh mục</h2>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-sm btn-outline-secondary"
+               th:each="c : ${categories}"
+               th:href="@{/products(categoryId=${c.id})}"
+               th:text="${c.name}">Danh mục</a>
+        </div>
+    </div>
+
+    <h2 class="h5 mb-3">Bán chạy nhất</h2>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+        <div class="col" th:each="p : ${products}">
+            <div th:replace="~{fragments/product-card :: card(${p})}"></div>
+        </div>
+    </div>
+
+    <p class="text-muted mt-4 mb-0" th:if="${products == null or products.isEmpty()}">
+        Chưa có sản phẩm nào. Bật <code>app.seed.enabled=true</code> rồi chạy lại để tạo dữ liệu mẫu.
+    </p>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+# Copy file nay thanh application-local.properties roi dien gia tri cua may minh.
+# application-local.properties da nam trong .gitignore nen KHONG bi day len GitHub.
+
+spring.datasource.username=sa
+spring.datasource.password=
+
+# Neu SQL Server dung named instance, vi du SQLEXPRESS:
+# spring.datasource.url=jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=utetra;encrypt=true;trustServerCertificate=true
+
+# Gmail: Password phai la App Password 16 ky tu, khong phai mat khau dang nhap
+spring.mail.username=
+spring.mail.password=
+
+cloudinary.cloud-name=
+cloudinary.api-key=
+cloudinary.api-secret=

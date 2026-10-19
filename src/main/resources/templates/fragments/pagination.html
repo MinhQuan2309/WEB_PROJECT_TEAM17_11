@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+
+<!-- Fragment phân trang dùng chung.
+     Cách gọi:  <div th:replace="~{fragments/pagination :: pager(${page}, '/products')}"></div>
+     page là đối tượng Page<T> của Spring Data. -->
+<nav th:fragment="pager(page, baseUrl)" th:if="${page != null and page.totalPages > 1}"
+     aria-label="Phân trang">
+    <ul class="pagination justify-content-center">
+        <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+            <a class="page-link" th:href="@{${baseUrl}(page=${page.number - 1})}">Trước</a>
+        </li>
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+            th:classappend="${i == page.number} ? 'active'">
+            <a class="page-link" th:href="@{${baseUrl}(page=${i})}" th:text="${i + 1}">1</a>
+        </li>
+        <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+            <a class="page-link" th:href="@{${baseUrl}(page=${page.number + 1})}">Sau</a>
+        </li>
+    </ul>
+</nav>
+
+</body>
+</html>

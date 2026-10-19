@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Khu vực quản lý</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <h1 class="h4 mb-1">Khu vực quản lý</h1>
+    <p class="text-muted">Chỉ thấy dữ liệu các shop được phân công (Shop.manager). Phần của Quân, tuần 4.</p>
+
+    <div class="alert alert-secondary mb-0">
+        Dùng chung bộ màn hình với Admin nhưng giới hạn phạm vi theo
+        <code>ShopRepository.findByManager(...)</code>.
+    </div>
+
+</div>
+
+</body>
+</html>

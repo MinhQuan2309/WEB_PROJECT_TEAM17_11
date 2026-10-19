@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Đăng nhập</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h5 mb-3">Đăng nhập</h1>
+
+                    <div class="alert alert-danger py-2" th:if="${param.error}">
+                        Sai tên đăng nhập hoặc mật khẩu.
+                    </div>
+                    <div class="alert alert-success py-2" th:if="${param.logout}">
+                        Đã đăng xuất.
+                    </div>
+
+                    <form th:action="@{/login}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label" for="username">Tên đăng nhập hoặc email</label>
+                            <input class="form-control" id="username" name="username" required autofocus/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="password">Mật khẩu</label>
+                            <input class="form-control" id="password" name="password" type="password" required/>
+                        </div>
+                        <button class="btn btn-primary w-100" type="submit">Đăng nhập</button>
+                    </form>
+
+                    <div class="d-flex justify-content-between mt-3 small">
+                        <a th:href="@{/forgot-password}">Quên mật khẩu?</a>
+                        <a th:href="@{/register}">Tạo tài khoản</a>
+                    </div>
+
+                    <hr/>
+                    <p class="small text-muted mb-1">Tài khoản mẫu (mật khẩu <code>123456</code>):</p>
+                    <ul class="small text-muted mb-0 ps-3">
+                        <li><code>admin</code> - quản trị toàn sàn</li>
+                        <li><code>manager</code> - quản lý shop được phân công</li>
+                        <li><code>vendor1</code>, <code>vendor2</code> - chủ shop</li>
+                        <li><code>khach</code> - khách mua hàng</li>
+                        <li><code>shipper</code> - người giao hàng</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vi">
+<body>
+
+<!-- Navbar hiển thị menu theo vai. Dùng sec:authorize để ẩn/hiện. -->
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark utetra-navbar">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/}">
+            <i class="bi bi-cup-straw"></i> UTETra
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#mainNav" aria-controls="mainNav"
+                aria-expanded="false" aria-label="Mở menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <form class="d-flex ms-lg-4 my-2 my-lg-0 flex-grow-1" th:action="@{/products}" method="get">
+                <input class="form-control form-control-sm me-2" type="search" name="keyword"
+                       placeholder="Tìm trà sữa, trà trái cây, cà phê..." aria-label="Tìm kiếm"/>
+                <button class="btn btn-sm btn-light" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/products}">Sản phẩm</a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasRole('VENDOR')">
+                    <a class="nav-link" th:href="@{/vendor}">Shop của tôi</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('SHIPPER')">
+                    <a class="nav-link" th:href="@{/shipper}">Đơn cần giao</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('MANAGER')">
+                    <a class="nav-link" th:href="@{/manager}">Quản lý</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin}">Quản trị</a>
+                </li>
+
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/cart}">
+                        <i class="bi bi-cart3"></i> Giỏ hàng
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        <span sec:authentication="name">tài khoản</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{/account}">Thông tin cá nhân</a></li>
+                        <li><a class="dropdown-item" th:href="@{/orders}">Lịch sử mua hàng</a></li>
+                        <li><a class="dropdown-item" th:href="@{/wishlist}">Sản phẩm yêu thích</a></li>
+                        <li><hr class="dropdown-divider"/></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="px-3 py-1">
+                                <button class="btn btn-sm btn-outline-secondary w-100" type="submit">
+                                    Đăng xuất
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">Đăng nhập</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-sm btn-light ms-lg-2" th:href="@{/register}">Đăng ký</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>

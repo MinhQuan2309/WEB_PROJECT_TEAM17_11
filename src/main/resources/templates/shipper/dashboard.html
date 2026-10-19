@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Đơn cần giao</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <h1 class="h4 mb-1">Đơn cần giao</h1>
+    <p class="text-muted">Khu vực Shipper. Phần của Thiện.</p>
+
+    <div class="alert alert-secondary mb-0">
+        Việc của khu vực này: danh sách đơn được phân công
+        (<code>OrderRepository.findByShipperAndStatusOrderByIdDesc</code>),
+        cập nhật trạng thái đã lấy hàng - đang giao - đã giao, thống kê theo ngày và tháng.
+    </div>
+
+</div>
+
+</body>
+</html>

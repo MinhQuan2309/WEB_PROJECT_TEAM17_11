@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Quản trị hệ thống</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <h1 class="h4 mb-1">Quản trị hệ thống</h1>
+    <p class="text-muted">Phạm vi toàn sàn. Phần của Quân, hoàn thiện ở tuần 4.</p>
+
+    <div class="row row-cols-1 row-cols-md-5 g-3 mb-4">
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h3 mb-0" th:text="${userCount}">0</div>
+                <small class="text-muted">Người dùng</small>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h3 mb-0" th:text="${shopCount}">0</div>
+                <small class="text-muted">Shop</small>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h3 mb-0" th:text="${productCount}">0</div>
+                <small class="text-muted">Sản phẩm</small>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h3 mb-0" th:text="${orderCount}">0</div>
+                <small class="text-muted">Đơn hàng</small>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h5 mb-0" th:text="${#numbers.formatInteger(revenue, 0, 'POINT')} + ' đ'">0 đ</div>
+                <small class="text-muted">Doanh thu đã giao</small>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="alert alert-secondary">
+        Việc còn lại của khu vực này: quản lý người dùng, duyệt sản phẩm từng shop,
+        quản lý danh mục, chiết khấu app, chương trình khuyến mãi, nhà vận chuyển.
+    </div>
+
+</div>
+
+</body>
+</html>
