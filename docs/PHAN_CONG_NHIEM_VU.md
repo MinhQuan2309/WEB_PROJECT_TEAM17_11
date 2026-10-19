@@ -3,7 +3,7 @@
 **Đề tài 11:** Website chuỗi bán trà sữa UTETra — Spring Boot + Thymeleaf + Bootstrap + JPA + SQL Server/MySQL/PostgreSQL + JWT + WebSocket + Cloudinary.
 
 **Nhóm 3 thành viên:** Quân, Hải, Thiện.
-**Repo chung:** https://github.com/ThienDZN/Web-Project-
+**Repo chung:** https://github.com/MinhQuan2309/WEB_PROJECT_TEAM17_11
 
 ---
 
@@ -155,7 +155,7 @@ Ai xong sớm thì nhận thêm từ danh sách việc tùy chọn ở mục 8.
 Chia package **theo module nghiệp vụ** thay vì chỉ theo tầng. Mục đích rất thực tế: **mỗi người làm trong thư mục riêng của mình → gần như không bao giờ conflict khi merge Git**.
 
 ```
-Web-Project-/
+WEB_PROJECT_TEAM17_11/
 ├── docs/
 │   ├── PHAN_CONG_NHIEM_VU.md          ← file này
 │   ├── KhaoSat_PhanTichHeThong.docx
