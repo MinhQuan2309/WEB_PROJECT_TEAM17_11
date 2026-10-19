@@ -1,0 +1,86 @@
+/* Giao dien rieng cho khoi Guest + User (Hai phu trach) */
+.utetra-hero-banner {
+    background: linear-gradient(135deg, #5b3a29 0%, #8c583a 60%, #c77b4a 100%);
+    color: #fff;
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.utetra-hero-banner .badge-soft {
+    background-color: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    backdrop-filter: blur(4px);
+}
+
+.category-pill {
+    border-radius: 999px;
+    padding: 0.45rem 1.1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid #decbb8;
+    background-color: #fff;
+    color: #5b3a29;
+    text-decoration: none;
+}
+
+.category-pill:hover, .category-pill.active {
+    background-color: #5b3a29;
+    color: #fff;
+    border-color: #5b3a29;
+}
+
+.section-header-bar {
+    border-left: 4px solid #c77b4a;
+    padding-left: 0.75rem;
+}
+
+.product-card-wrapper {
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.product-card-wrapper:hover {
+    transform: translateY(-3px);
+}
+
+.option-radio-btn {
+    cursor: pointer;
+}
+
+.price-tag-lg {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #c0392b;
+}
+
+.shop-badge-card {
+    background-color: #fff;
+    border: 1px solid #eee2d5;
+    border-radius: 0.75rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.shop-badge-card:hover {
+    border-color: #c77b4a;
+    box-shadow: 0 0.25rem 0.75rem rgba(91, 58, 41, 0.08);
+}
+
+.status-tab-link {
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.status-tab-link.active {
+    background-color: #5b3a29 !important;
+    border-color: #5b3a29 !important;
+    color: #fff !important;
+}
+
+.review-media-thumb {
+    max-width: 160px;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+}

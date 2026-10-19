@@ -42,14 +42,4 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
      */
     @EntityGraph(attributePaths = {"shop", "category"})
     List<Product> findTop10ByActiveTrueOrderBySoldCountDesc();
-
-    // ===== Them cho module vendor (Thien) =====
-
-    /** Danh sach san pham cua shop, ke ca san pham dang an (man hinh quan ly cua Vendor). */
-    @EntityGraph(attributePaths = {"category"})
-    Page<Product> findByShopOrderByIdDesc(Shop shop, Pageable pageable);
-
-    long countByShop(Shop shop);
-
-    long countByShopAndActiveTrue(Shop shop);
 }

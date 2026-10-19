@@ -17,11 +17,4 @@ import java.util.Optional;
 public interface ToppingRepository extends JpaRepository<Topping, Long> {
 
     List<Topping> findByShopAndActiveTrue(Shop shop);
-
-    // ===== Them cho module vendor (Thien) =====
-
-    /** Tat ca topping cua shop, ke ca dang an (man hinh quan ly cua Vendor). */
-    List<Topping> findByShopOrderByIdAsc(Shop shop);
-
-    long countByShop(Shop shop);
 }

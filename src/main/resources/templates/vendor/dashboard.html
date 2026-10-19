@@ -9,79 +9,13 @@
 <body>
 
 <div layout:fragment="content">
+    <h1 class="h4 mb-1">Shop của tôi</h1>
+    <p class="text-muted">Khu vực Vendor. Phần của Thiện.</p>
 
-    <!-- Đầu trang: thông tin shop -->
-    <div class="card mb-4">
-        <div class="card-body d-flex flex-wrap align-items-center gap-3">
-            <img th:if="${shop.logoUrl != null}" th:src="${shop.logoUrl}" alt="Logo shop"
-                 class="rounded border" style="width:72px;height:72px;object-fit:cover"/>
-            <div class="flex-grow-1">
-                <h1 class="h4 mb-1" th:text="${shop.name}">Tên shop</h1>
-                <div class="small text-muted">
-                    <i class="bi bi-geo-alt"></i> <span th:text="${shop.address}">Địa chỉ</span>
-                    <span th:if="${shop.phone != null}">
-                        &middot; <i class="bi bi-telephone"></i> <span th:text="${shop.phone}">SĐT</span>
-                    </span>
-                </div>
-            </div>
-            <span class="badge"
-                  th:classappend="${shop.status.name() == 'ACTIVE'} ? 'text-bg-success'
-                                : (${shop.status.name() == 'PENDING'} ? 'text-bg-warning' : 'text-bg-secondary')"
-                  th:text="${shop.status.label}">Trạng thái</span>
-            <a class="btn btn-sm btn-primary" th:href="@{/vendor/shop}">
-                <i class="bi bi-pencil-square"></i> Sửa thông tin shop
-            </a>
-            <a class="btn btn-sm btn-outline-secondary" th:href="@{'/shop/' + ${shop.id}}"
-               target="_blank" rel="noopener">
-                <i class="bi bi-box-arrow-up-right"></i> Xem trang shop
-            </a>
-        </div>
-    </div>
-
-    <!-- Số liệu tổng quan -->
-    <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
-        <div class="col">
-            <div class="card text-center h-100"><div class="card-body">
-                <div class="h3 mb-0" th:text="${productCount}">0</div>
-                <small class="text-muted">Sản phẩm (<span th:text="${activeProductCount}">0</span> đang bán)</small>
-            </div></div>
-        </div>
-        <div class="col">
-            <div class="card text-center h-100"><div class="card-body">
-                <div class="h3 mb-0" th:text="${toppingCount}">0</div>
-                <small class="text-muted">Topping</small>
-            </div></div>
-        </div>
-        <div class="col">
-            <div class="card text-center h-100"><div class="card-body">
-                <div class="h3 mb-0" th:text="${orderCount}">0</div>
-                <small class="text-muted">Đơn hàng của shop</small>
-            </div></div>
-        </div>
-        <div class="col">
-            <div class="card text-center h-100"><div class="card-body">
-                <div class="h5 mb-0"
-                     th:text="${#numbers.formatInteger(revenue, 0, 'POINT')} + ' đ'">0 đ</div>
-                <small class="text-muted">Doanh thu đã giao</small>
-            </div></div>
-        </div>
-    </div>
-
-    <!-- Đơn hàng theo 7 trạng thái -->
-    <h2 class="h6 text-uppercase text-muted mb-3">Đơn hàng theo trạng thái</h2>
-    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-7 g-2">
-        <div class="col" th:each="entry : ${orderCounts}">
-            <div class="border rounded p-2 text-center h-100">
-                <div class="fw-bold" th:text="${entry.value}">0</div>
-                <small class="text-muted" th:text="${entry.key.label}">Trạng thái</small>
-            </div>
-        </div>
-    </div>
-
-    <!-- Việc của các tuần sau sẽ được bổ sung dần vào đây -->
-    <div class="alert alert-secondary mt-4 mb-0 small">
-        Tuần 1: đăng ký shop và quản lý thông tin shop.
-        Tuần 2 bổ sung quản lý sản phẩm, tuần 3 quản lý đơn hàng, tuần 5 báo cáo doanh thu.
+    <div class="alert alert-secondary mb-0">
+        Việc của khu vực này: đăng ký shop, quản lý trang chủ shop, CRUD sản phẩm và topping,
+        quản lý đơn hàng theo 7 trạng thái, tạo khuyến mãi, báo cáo doanh thu.
+        Upload ảnh gọi <code>CloudinaryService.upload(file, "products")</code>.
     </div>
 
 </div>
