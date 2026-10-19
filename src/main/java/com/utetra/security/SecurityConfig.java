@@ -44,6 +44,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/img/**", "/template-bootstrap/**",
                                  "/favicon.ico", "/webjars/**").permitAll()
+                // Khong mo /error thi khach chua dang nhap go sai duong dan se bi
+                // da ve trang login thay vi thay trang 404.
+                .requestMatchers("/error").permitAll()
                 .requestMatchers("/", "/home", "/products/**", "/shop/**", "/search",
                                  "/category/**", "/ws/**").permitAll()
                 .requestMatchers("/login", "/logout", "/register/**",

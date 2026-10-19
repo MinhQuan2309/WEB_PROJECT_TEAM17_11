@@ -15,6 +15,8 @@ import com.utetra.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,8 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Kiem tra bo khung: context len duoc, repository hop le, du lieu mau tao dung,
  * mat khau da ma hoa BCrypt, tim kiem san pham chay.
  */
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UtetraApplicationTests {
+
+    @Autowired TestRestTemplate restTemplate;
 
     @Autowired UserRepository userRepository;
     @Autowired ShopRepository shopRepository;
@@ -89,6 +93,19 @@ class UtetraApplicationTests {
         assertEquals(0, shipmentRepository.count());
         assertTrue(promotionRepository.findByShopIsNullAndActiveTrue().isEmpty());
         assertTrue(promotionRepository.findRunning(java.time.LocalDateTime.now(), null).isEmpty());
+    }
+
+    /**
+     * Khach chua dang nhap vao mot trang cong khai nhung du lieu khong ton tai
+     * thi phai thay 404. Truoc day bi da ve trang dang nhap vi quen permitAll cho /error.
+     *
+     * (Duong dan la khong co trong he thong thi van hoi dang nhap - do la hanh vi
+     * dung cua Spring Security, khong phai loi.)
+     */
+    @Test
+    void trangCongKhaiVoiDuLieuKhongTonTaiTra404() {
+        var res = restTemplate.getForEntity("/shop/999999", String.class);
+        assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
     }
 
     @Test
