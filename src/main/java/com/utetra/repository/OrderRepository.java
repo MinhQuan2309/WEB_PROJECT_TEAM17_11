@@ -35,6 +35,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     long countByShopAndStatus(Shop shop, OrderStatus status);
 
+    // ===== Them cho module vendor / shipper (Thien) =====
+
+    long countByShop(Shop shop);
+
     /** Doanh thu: chi tinh don da giao. */
     @Query("""
             select coalesce(sum(o.total), 0) from Order o
