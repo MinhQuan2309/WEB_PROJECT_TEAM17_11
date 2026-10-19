@@ -7,24 +7,6 @@
 
 ---
 
-## 0. Hai điểm phải chốt trước khi code
-
-Đọc kỹ đề tài rồi so với bộ khung đang có trong repo, có 2 chỗ lệch cần sửa ngay ở tuần 1, nếu không thì càng code càng phải đập đi:
-
-**(1) Số vai trò.** Khung hiện tại `Role` chỉ có 3 giá trị (`CUSTOMER`, `BRANCH_MANAGER`, `ADMIN`). Đề tài yêu cầu **5 vai + Guest**: Guest, User, Vendor (Seller), Manager, Admin, Shipper. Phải mở rộng enum:
-
-```java
-public enum Role { USER, VENDOR, MANAGER, ADMIN, SHIPPER }
-```
-
-(Guest = chưa đăng nhập, không cần record trong DB.)
-
-**(2) Mô hình "chuỗi cửa hàng" vs "sàn nhiều shop".** Tên đề tài là *chuỗi* trà sữa, nhưng phần mô tả chức năng lại là mô hình **sàn nhiều shop** (Vendor đăng ký shop, Manager quản lý sản phẩm *của từng shop*, chiết khấu app cho các shop). Nhóm nên đi theo đúng mô tả chức năng vì đó là thứ thầy chấm: thực thể trung tâm là **`Shop`** (một Vendor sở hữu một Shop), thay cho `Branch` trong khung hiện tại. Giữ lại `Branch` cũng được nhưng đổi tên thành `Shop` cho khỏi lẫn.
-
-> Chốt 2 việc này trong buổi họp đầu tiên, Quân sửa entity + enum rồi push lên `develop` trước khi Hải và Thiện bắt đầu, vì cả hai đều phụ thuộc vào `User`, `Shop`, `Product`, `Order`.
-
----
-
 ## 1. Nguyên tắc chia việc
 
 Đề tài yêu cầu *"phân công theo các chức năng theo User+Guest; Vendor, Manager, Admin, Shipper"*. Nhóm 3 người, 5 vai → gộp thành 3 khối cân nhau, mỗi khối có đủ cả **backend + frontend + báo cáo** để ai cũng bảo vệ được phần mình:
@@ -46,7 +28,7 @@ Lý do chia vậy:
 
 ### 2.1 Quân — Nền tảng chung + Manager + Admin
 
-**A. Chức năng chung (tuần 1–2, ưu tiên cao nhất vì cả nhóm chờ)**
+**A. Chức năng chung**
 
 | Việc | Ghi chú kỹ thuật |
 |---|---|
@@ -61,7 +43,7 @@ Lý do chia vậy:
 | Layout Bootstrap gốc + fragment chung | `layout/base.html` (Decorator), navbar theo vai, footer, phân trang, thông báo |
 | Cấu hình CSDL + dữ liệu mẫu (seed) | `data.sql` hoặc `CommandLineRunner`: 1 admin, 1 manager, 2 vendor + 2 shop, 2 user, 1 shipper, ~15 sản phẩm |
 
-**B. Manager + Admin (tuần 3–4)**
+**B. Manager + Admin**
 
 Đề tài ghi Manager và Admin cùng một danh sách chức năng → làm **một bộ màn hình quản trị dùng chung**, khác nhau ở phạm vi dữ liệu:
 - **Admin**: toàn sàn.
