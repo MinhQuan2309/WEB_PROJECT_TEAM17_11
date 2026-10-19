@@ -1,42 +1,384 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}"
       lang="vi">
 <head>
     <title>Trang chủ</title>
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/hai-storefront.css}"/>
+    </th:block>
 </head>
 <body>
 
 <div layout:fragment="content">
 
-    <div class="p-4 mb-4 rounded-3 utetra-hero">
-        <h1 class="h3 mb-2">Trà sữa UTETra</h1>
-        <p class="mb-0">Đặt nhanh, nhận nhanh. Chọn size, topping và mức đường/đá theo ý bạn.</p>
+    <!-- Thông báo flash -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-1"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
     </div>
 
+    <!-- Hero Banner + Ô tìm kiếm nhanh -->
+    <div class="utetra-hero-banner mb-4 shadow-sm">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <span class="badge badge-soft rounded-pill px-3 py-2 mb-2">
+                    <i class="bi bi-stars me-1"></i> Chuỗi cửa hàng trà sữa UTETra
+                </span>
+                <h1 class="display-6 fw-bold mb-2">Đặt trà sữa chuẩn vị, giao tận tay nhanh chóng</h1>
+                <p class="mb-3 opacity-90">
+                    Tùy chọn size S/M/L, đa dạng topping trân châu, kem phô mai và điều chỉnh mức đường, mức đá theo sở thích của riêng bạn.
+                </p>
+                <form th:action="@{/products}" method="get" class="row g-2">
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="search" name="keyword" class="form-control border-0 py-2"
+                                   placeholder="Tìm trà sữa trân châu, trà đào cam sả, matcha..."/>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 d-grid">
+                        <button type="submit" class="btn btn-warning fw-semibold py-2">
+                            Tìm kiếm ngay
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-end">
+                <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-25 text-start">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-lightning-charge-fill text-warning fs-4 me-2"></i>
+                        <div>
+                            <div class="fw-bold">Đặt đơn đa cửa hàng</div>
+                            <small class="opacity-75">Tự động tách đơn theo từng chi nhánh Shop</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-ticket-perforated-fill text-warning fs-4 me-2"></i>
+                        <div>
+                            <div class="fw-bold">Nhiều Voucher giảm giá &amp; Freeship</div>
+                            <small class="opacity-75">Áp dụng trực tiếp khi thanh toán</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-shield-check text-warning fs-4 me-2"></i>
+                        <div>
+                            <div class="fw-bold">Thanh toán COD / VNPAY / MOMO</div>
+                            <small class="opacity-75">Theo dõi trạng thái đơn hàng thời gian thực</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh mục sản phẩm -->
     <div class="mb-4" th:if="${categories != null and !categories.isEmpty()}">
-        <h2 class="h6 text-uppercase text-muted mb-3">Danh mục</h2>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h6 text-uppercase fw-bold text-muted mb-0 section-header-bar">Danh mục thực đơn</h2>
+            <a th:href="@{/products}" class="small text-decoration-none">Xem tất cả thực đơn <i class="bi bi-arrow-right"></i></a>
+        </div>
         <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-sm btn-outline-secondary"
+            <a class="category-pill" th:href="@{/products}">
+                <i class="bi bi-grid me-1"></i> Tất cả
+            </a>
+            <a class="category-pill"
                th:each="c : ${categories}"
-               th:href="@{/products(categoryId=${c.id})}"
+               th:href="@{/category/{slug}(slug=${c.slug})}"
                th:text="${c.name}">Danh mục</a>
         </div>
     </div>
 
-    <h2 class="h5 mb-3">Bán chạy nhất</h2>
-    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
-        <div class="col" th:each="p : ${products}">
-            <div th:replace="~{fragments/product-card :: card(${p})}"></div>
+    <!-- Danh sách các Shop đang hoạt động -->
+    <div class="mb-5" th:if="${shops != null and !shops.isEmpty()}">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h6 text-uppercase fw-bold text-muted mb-0 section-header-bar">Hệ thống cửa hàng UTETra</h2>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+            <div class="col" th:each="s : ${shops}">
+                <div class="shop-badge-card p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="h6 fw-bold mb-1">
+                            <i class="bi bi-shop text-warning me-1"></i>
+                            <span th:text="${s.name}">Tên Shop</span>
+                        </h3>
+                        <div class="small text-muted mb-1" th:text="${s.address}">Địa chỉ</div>
+                        <div class="small text-secondary" th:text="${s.description}">Mô tả</div>
+                    </div>
+                    <a th:href="@{/shop/{id}(id=${s.id})}" class="btn btn-sm btn-outline-dark ms-3 text-nowrap">
+                        Xem Shop
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <p class="text-muted mt-4 mb-0" th:if="${products == null or products.isEmpty()}">
-        Chưa có sản phẩm nào. Bật <code>app.seed.enabled=true</code> rồi chạy lại để tạo dữ liệu mẫu.
-    </p>
+    <!-- ========================================================================= -->
+    <!-- KHU VỰC DÀNH CHO GUEST (Chưa đăng nhập): Trên 10 sản phẩm giảm dần lượt bán -->
+    <!-- ========================================================================= -->
+    <div sec:authorize="!isAuthenticated()">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="h5 fw-bold mb-0 section-header-bar">
+                    Top sản phẩm bán chạy nhất toàn hệ thống
+                </h2>
+                <small class="text-muted">
+                    Hiển thị <span th:text="${products != null ? products.size() : 0}">12</span> sản phẩm của các shop, sắp xếp giảm dần theo lượt bán
+                </small>
+            </div>
+            <a th:href="@{/products(sort='best-selling')}" class="btn btn-sm btn-outline-secondary">
+                Lọc &amp; tìm kiếm nâng cao
+            </a>
+        </div>
+
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3" th:if="${products != null and !products.isEmpty()}">
+            <div class="col" th:each="p : ${products}">
+                <div class="card h-100 shadow-sm border-0 product-card-wrapper">
+                    <a th:href="@{/products/{id}(id=${p.id})}" class="text-decoration-none text-dark">
+                        <img class="card-img-top product-thumb"
+                             th:src="${p.imageUrl != null} ? ${p.imageUrl} : 'https://placehold.co/400x300?text=UTETra'"
+                             th:alt="${p.name}"/>
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span class="badge bg-light text-secondary border"
+                                  th:text="${p.category != null ? p.category.name : 'Trà sữa'}">Danh mục</span>
+                            <small class="text-muted">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <span th:text="${p.ratingAvg}">5.0</span>
+                            </small>
+                        </div>
+                        <h6 class="card-title mb-1">
+                            <a th:href="@{/products/{id}(id=${p.id})}" class="text-decoration-none text-dark"
+                               th:text="${p.name}">Tên sản phẩm</a>
+                        </h6>
+                        <div class="small text-muted mb-2">
+                            <i class="bi bi-shop me-1"></i>
+                            <span th:text="${p.shop != null ? p.shop.name : ''}">Shop</span>
+                        </div>
+                        <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold text-danger"
+                                     th:text="${#numbers.formatInteger(p.basePrice, 0, 'POINT')} + ' đ'">0 đ</div>
+                                <small class="text-muted" th:text="'Đã bán ' + ${p.soldCount} + ' · ♥ ' + ${p.likeCount}">Đã bán</small>
+                            </div>
+                            <!-- Guest bấm mua -> chuyển sang đăng nhập theo đúng yêu cầu đề tài -->
+                            <a th:href="@{/login}" class="btn btn-sm btn-primary" title="Đăng nhập để đặt mua">
+                                <i class="bi bi-cart-plus"></i> Mua
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-muted mt-4 mb-0" th:if="${products == null or products.isEmpty()}">
+            Chưa có sản phẩm nào. Bật <code>app.seed.enabled=true</code> rồi chạy lại để tạo dữ liệu mẫu.
+        </p>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- KHU VỰC DÀNH CHO USER (Đã đăng nhập): 4 Block 20 sản phẩm + Đã xem gần đây -->
+    <!-- ========================================================================= -->
+    <div sec:authorize="isAuthenticated()">
+
+        <!-- Block 1: 20 Sản phẩm Mới nhất -->
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="h5 fw-bold mb-0 section-header-bar">
+                        <i class="bi bi-sparkles text-warning me-1"></i> Sản phẩm mới nhất
+                    </h2>
+                    <small class="text-muted">Block 20 sản phẩm mới ra mắt (hỗ trợ phân trang &amp; tải thêm)</small>
+                </div>
+                <a th:href="@{/products(sort='newest')}" class="btn btn-sm btn-outline-secondary">Xem tất cả</a>
+            </div>
+            <div id="block-newest-container" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                <div class="col" th:each="p : ${newestBlock.content}">
+                    <div th:replace="~{fragments/product-card :: card(${p})}"></div>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+                <div th:if="${newestBlock.totalPages > 1}" class="btn-group btn-group-sm">
+                    <a class="btn btn-outline-secondary"
+                       th:classappend="${newestBlock.first} ? 'disabled'"
+                       th:href="@{/(newestPage=${newestBlock.number - 1}, bestPage=${bestSellingBlock.number}, ratingPage=${topRatedBlock.number}, likedPage=${mostLikedBlock.number})}">
+                        &laquo; Trang trước
+                    </a>
+                    <span class="btn btn-light disabled"
+                          th:text="'Trang ' + (${newestBlock.number + 1}) + '/' + ${newestBlock.totalPages}">1/1</span>
+                    <a class="btn btn-outline-secondary"
+                       th:classappend="${newestBlock.last} ? 'disabled'"
+                       th:href="@{/(newestPage=${newestBlock.number + 1}, bestPage=${bestSellingBlock.number}, ratingPage=${topRatedBlock.number}, likedPage=${mostLikedBlock.number})}">
+                        Trang sau &raquo;
+                    </a>
+                </div>
+                <button th:if="${newestBlock.hasNext()}"
+                        type="button"
+                        class="btn btn-sm btn-outline-primary js-lazy-load-block"
+                        data-block-type="newest"
+                        th:attr="data-next-page=${newestBlock.number + 1},data-page-size=${blockSize}"
+                        data-target-container="#block-newest-container">
+                    <i class="bi bi-arrow-down-circle me-1"></i> Xem thêm (Lazy Load)
+                </button>
+            </div>
+        </section>
+
+        <!-- Block 2: 20 Sản phẩm Bán chạy nhất -->
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="h5 fw-bold mb-0 section-header-bar">
+                        <i class="bi bi-fire text-danger me-1"></i> Bán chạy nhất
+                    </h2>
+                    <small class="text-muted">Block 20 sản phẩm có lượt bán cao nhất</small>
+                </div>
+                <a th:href="@{/products(sort='best-selling')}" class="btn btn-sm btn-outline-secondary">Xem tất cả</a>
+            </div>
+            <div id="block-bestselling-container" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                <div class="col" th:each="p : ${bestSellingBlock.content}">
+                    <div th:replace="~{fragments/product-card :: card(${p})}"></div>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+                <div th:if="${bestSellingBlock.totalPages > 1}" class="btn-group btn-group-sm">
+                    <a class="btn btn-outline-secondary"
+                       th:classappend="${bestSellingBlock.first} ? 'disabled'"
+                       th:href="@{/(newestPage=${newestBlock.number}, bestPage=${bestSellingBlock.number - 1}, ratingPage=${topRatedBlock.number}, likedPage=${mostLikedBlock.number})}">
+                        &laquo; Trang trước
+                    </a>
+                    <span class="btn btn-light disabled"
+                          th:text="'Trang ' + (${bestSellingBlock.number + 1}) + '/' + ${bestSellingBlock.totalPages}">1/1</span>
+                    <a class="btn btn-outline-secondary"
+                       th:classappend="${bestSellingBlock.last} ? 'disabled'"
+                       th:href="@{/(newestPage=${newestBlock.number}, bestPage=${bestSellingBlock.number + 1}, ratingPage=${topRatedBlock.number}, likedPage=${mostLikedBlock.number})}">
+                        Trang sau &raquo;
+                    </a>
+                </div>
+                <button th:if="${bestSellingBlock.hasNext()}"
+                        type="button"
+                        class="btn btn-sm btn-outline-primary js-lazy-load-block"
+                        data-block-type="best-selling"
+                        th:attr="data-next-page=${bestSellingBlock.number + 1},data-page-size=${blockSize}"
+                        data-target-container="#block-bestselling-container">
+                    <i class="bi bi-arrow-down-circle me-1"></i> Xem thêm (Lazy Load)
+                </button>
+            </div>
+        </section>
+
+        <!-- Block 3: 20 Sản phẩm Đánh giá cao nhất -->
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="h5 fw-bold mb-0 section-header-bar">
+                        <i class="bi bi-star-fill text-warning me-1"></i> Đánh giá cao nhất
+                    </h2>
+                    <small class="text-muted">Block 20 sản phẩm được khách hàng chấm điểm sao cao nhất</small>
+                </div>
+                <a th:href="@{/products(sort='rating')}" class="btn btn-sm btn-outline-secondary">Xem tất cả</a>
+            </div>
+            <div id="block-toprated-container" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                <div class="col" th:each="p : ${topRatedBlock.content}">
+                    <div th:replace="~{fragments/product-card :: card(${p})}"></div>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+                <div th:if="${topRatedBlock.totalPages > 1}" class="btn-group btn-group-sm">
+                    <a class="btn btn-outline-secondary"
+                       th:classappend="${topRatedBlock.first} ? 'disabled'"
+                       th:href="@{/(newestPage=${newestBlock.number}, bestPage=${bestSellingBlock.number}, ratingPage=${topRatedBlock.number - 1}, likedPage=${mostLikedBlock.number})}">
+                        &laquo; Trang trước
+                    </a>
+                    <span class="btn btn-light disabled"
+                          th:text="'Trang ' + (${topRatedBlock.number + 1}) + '/' + ${topRatedBlock.totalPages}">1/1</span>
+                    <a class="btn btn-outline-secondary"
+                       th:classappend="${topRatedBlock.last} ? 'disabled'"
+                       th:href="@{/(newestPage=${newestBlock.number}, bestPage=${bestSellingBlock.number}, ratingPage=${topRatedBlock.number + 1}, likedPage=${mostLikedBlock.number})}">
+                        Trang sau &raquo;
+                    </a>
+                </div>
+                <button th:if="${topRatedBlock.hasNext()}"
+                        type="button"
+                        class="btn btn-sm btn-outline-primary js-lazy-load-block"
+                        data-block-type="top-rated"
+                        th:attr="data-next-page=${topRatedBlock.number + 1},data-page-size=${blockSize}"
+                        data-target-container="#block-toprated-container">
+                    <i class="bi bi-arrow-down-circle me-1"></i> Xem thêm (Lazy Load)
+                </button>
+            </div>
+        </section>
+
+        <!-- Block 4: 20 Sản phẩm Yêu thích nhiều nhất -->
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="h5 fw-bold mb-0 section-header-bar">
+                        <i class="bi bi-heart-fill text-danger me-1"></i> Yêu thích nhiều nhất
+                    </h2>
+                    <small class="text-muted">Block 20 sản phẩm được thêm vào danh sách yêu thích nhiều nhất</small>
+                </div>
+                <a th:href="@{/products(sort='liked')}" class="btn btn-sm btn-outline-secondary">Xem tất cả</a>
+            </div>
+            <div id="block-mostliked-container" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                <div class="col" th:each="p : ${mostLikedBlock.content}">
+                    <div th:replace="~{fragments/product-card :: card(${p})}"></div>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+                <div th:if="${mostLikedBlock.totalPages > 1}" class="btn-group btn-group-sm">
+                    <a class="btn btn-outline-secondary"
+                       th:classappend="${mostLikedBlock.first} ? 'disabled'"
+                       th:href="@{/(newestPage=${newestBlock.number}, bestPage=${bestSellingBlock.number}, ratingPage=${topRatedBlock.number}, likedPage=${mostLikedBlock.number - 1})}">
+                        &laquo; Trang trước
+                    </a>
+                    <span class="btn btn-light disabled"
+                          th:text="'Trang ' + (${mostLikedBlock.number + 1}) + '/' + ${mostLikedBlock.totalPages}">1/1</span>
+                    <a class="btn btn-outline-secondary"
+                       th:classappend="${mostLikedBlock.last} ? 'disabled'"
+                       th:href="@{/(newestPage=${newestBlock.number}, bestPage=${bestSellingBlock.number}, ratingPage=${topRatedBlock.number}, likedPage=${mostLikedBlock.number + 1})}">
+                        Trang sau &raquo;
+                    </a>
+                </div>
+                <button th:if="${mostLikedBlock.hasNext()}"
+                        type="button"
+                        class="btn btn-sm btn-outline-primary js-lazy-load-block"
+                        data-block-type="most-liked"
+                        th:attr="data-next-page=${mostLikedBlock.number + 1},data-page-size=${blockSize}"
+                        data-target-container="#block-mostliked-container">
+                    <i class="bi bi-arrow-down-circle me-1"></i> Xem thêm (Lazy Load)
+                </button>
+            </div>
+        </section>
+
+        <!-- Sản phẩm đã xem gần đây -->
+        <section class="mb-4" th:if="${recentlyViewed != null and !recentlyViewed.isEmpty()}">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 fw-bold mb-0 section-header-bar">
+                    <i class="bi bi-clock-history text-secondary me-1"></i> Sản phẩm bạn vừa xem
+                </h2>
+                <a th:href="@{/account}" class="small text-decoration-none">Quản lý lịch sử xem</a>
+            </div>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                <div class="col" th:each="vh : ${recentlyViewed}">
+                    <div th:replace="~{fragments/product-card :: card(${vh.product})}"></div>
+                </div>
+            </div>
+        </section>
+
+    </div>
 
 </div>
 
+<th:block layout:fragment="scripts">
+    <script th:src="@{/js/hai-storefront.js}"></script>
+</th:block>
 </body>
 </html>
