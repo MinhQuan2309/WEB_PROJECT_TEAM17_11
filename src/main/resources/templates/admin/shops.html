@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Kiểm duyệt shop</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <!-- Dùng chung cho /admin/shops và /manager/shops.
+         Khác nhau ở ${basePath} và ${canAssignManager}. -->
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <h1 class="h4 mb-1">Kiểm duyệt shop</h1>
+            <p class="text-muted mb-0" th:if="${canAssignManager}">
+                Phạm vi toàn sàn.
+            </p>
+            <p class="text-muted mb-0" th:unless="${canAssignManager}">
+                Shop bạn đang quản lý và shop chưa ai nhận. Duyệt shop chưa ai nhận thì bạn nhận luôn shop đó.
+            </p>
+        </div>
+        <span class="badge text-bg-warning fs-6" th:if="${pendingCount > 0}">
+            <span th:text="${pendingCount}">0</span> hồ sơ chờ duyệt
+        </span>
+    </div>
+
+    <div class="alert alert-success py-2" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger py-2" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="btn-group btn-group-sm mb-3" role="group">
+        <a class="btn btn-outline-secondary" th:href="@{${basePath}}"
+           th:classappend="${currentStatus == null} ? 'active'">Tất cả</a>
+        <a class="btn btn-outline-secondary"
+           th:each="s : ${statuses}"
+           th:href="@{${basePath}(status=${s.name()})}"
+           th:classappend="${currentStatus != null and currentStatus.name() == s.name()} ? 'active'"
+           th:text="${s.label}">Trạng thái</a>
+    </div>
+
+    <p class="text-muted" th:if="${shops.isEmpty()}">Không có shop nào trong mục này.</p>
+
+    <div class="table-responsive" th:unless="${shops.isEmpty()}">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th style="width:3rem">#</th>
+                    <th>Shop</th>
+                    <th>Chủ shop</th>
+                    <th>Trạng thái</th>
+                    <th th:if="${canAssignManager}">Người quản lý</th>
+                    <th style="width:22rem">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="shop : ${shops}">
+                    <td th:text="${shop.id}">1</td>
+
+                    <td>
+                        <div class="fw-medium" th:text="${shop.name}">Tên shop</div>
+                        <small class="text-muted d-block" th:text="${shop.address}">Địa chỉ</small>
+                        <small class="text-danger d-block" th:if="${shop.moderationNote}"
+                               th:text="'Ghi chú: ' + ${shop.moderationNote}">Ghi chú</small>
+                    </td>
+
+                    <td>
+                        <span th:text="${shop.owner != null} ? ${shop.owner.fullName} : '-'">Chủ shop</span>
+                        <small class="text-muted d-block"
+                               th:if="${shop.owner != null}"
+                               th:text="${shop.owner.username} + ' · ' + ${shop.owner.role}">tài khoản</small>
+                    </td>
+
+                    <td>
+                        <span class="badge"
+                              th:classappend="${shop.status.name() == 'ACTIVE'} ? 'text-bg-success'
+                                            : (${shop.status.name() == 'PENDING'} ? 'text-bg-warning'
+                                            : 'text-bg-secondary')"
+                              th:text="${shop.status.label}">Trạng thái</span>
+                    </td>
+
+                    <td th:if="${canAssignManager}">
+                        <form class="d-flex gap-1" method="post"
+                              th:action="@{${basePath} + '/' + ${shop.id} + '/manager'}">
+                            <input type="hidden" name="status"
+                                   th:value="${currentStatus != null} ? ${currentStatus.name()} : ''"/>
+                            <select class="form-select form-select-sm" name="managerId" style="min-width:9rem">
+                                <option value="">— chưa phân công —</option>
+                                <option th:each="m : ${managers}"
+                                        th:value="${m.id}"
+                                        th:text="${m.fullName}"
+                                        th:selected="${shop.manager != null and shop.manager.id == m.id}">Manager</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-secondary" type="submit">Lưu</button>
+                        </form>
+                    </td>
+
+                    <td>
+                        <div class="d-flex flex-wrap gap-1">
+
+                            <!-- Duyệt: dùng được cho hồ sơ chờ duyệt và hồ sơ đã bị từ chối -->
+                            <form method="post"
+                                  th:if="${shop.status.name() == 'PENDING' or shop.status.name() == 'REJECTED'}"
+                                  th:action="@{${basePath} + '/' + ${shop.id} + '/approve'}">
+                                <input type="hidden" name="status"
+                                       th:value="${currentStatus != null} ? ${currentStatus.name()} : ''"/>
+                                <button class="btn btn-sm btn-success" type="submit">Duyệt</button>
+                            </form>
+
+                            <!-- Từ chối: phải ghi lý do -->
+                            <form class="d-flex gap-1" method="post"
+                                  th:if="${shop.status.name() == 'PENDING'}"
+                                  th:action="@{${basePath} + '/' + ${shop.id} + '/reject'}">
+                                <input type="hidden" name="status"
+                                       th:value="${currentStatus != null} ? ${currentStatus.name()} : ''"/>
+                                <input class="form-control form-control-sm" name="reason"
+                                       placeholder="Lý do từ chối" required style="min-width:9rem"/>
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Từ chối</button>
+                            </form>
+
+                            <!-- Tạm dừng shop đang hoạt động -->
+                            <form class="d-flex gap-1" method="post"
+                                  th:if="${shop.status.name() == 'ACTIVE'}"
+                                  th:action="@{${basePath} + '/' + ${shop.id} + '/suspend'}">
+                                <input type="hidden" name="status"
+                                       th:value="${currentStatus != null} ? ${currentStatus.name()} : ''"/>
+                                <input class="form-control form-control-sm" name="reason"
+                                       placeholder="Lý do tạm dừng" required style="min-width:9rem"/>
+                                <button class="btn btn-sm btn-outline-warning" type="submit">Tạm dừng</button>
+                            </form>
+
+                            <form method="post"
+                                  th:if="${shop.status.name() == 'SUSPENDED'}"
+                                  th:action="@{${basePath} + '/' + ${shop.id} + '/reactivate'}">
+                                <input type="hidden" name="status"
+                                       th:value="${currentStatus != null} ? ${currentStatus.name()} : ''"/>
+                                <button class="btn btn-sm btn-outline-success" type="submit">Mở lại</button>
+                            </form>
+
+                            <form method="post"
+                                  th:if="${shop.status.name() == 'REJECTED'}"
+                                  th:action="@{${basePath} + '/' + ${shop.id} + '/reopen'}">
+                                <input type="hidden" name="status"
+                                       th:value="${currentStatus != null} ? ${currentStatus.name()} : ''"/>
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">Mở lại hồ sơ</button>
+                            </form>
+
+                            <a class="btn btn-sm btn-outline-primary"
+                               th:if="${shop.status.name() == 'ACTIVE'}"
+                               th:href="@{'/shop/' + ${shop.id}}" target="_blank">Xem</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

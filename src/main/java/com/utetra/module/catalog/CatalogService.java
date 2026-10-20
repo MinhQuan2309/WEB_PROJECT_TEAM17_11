@@ -34,7 +34,6 @@ public class CatalogService {
     private final WishlistRepository wishlistRepository;
     private final ViewHistoryRepository viewHistoryRepository;
     private final PromotionRepository promotionRepository;
-    private final VoucherRepository voucherRepository;
     private final UserRepository userRepository;
 
     public CatalogService(ProductRepository productRepository,
@@ -46,7 +45,6 @@ public class CatalogService {
                           WishlistRepository wishlistRepository,
                           ViewHistoryRepository viewHistoryRepository,
                           PromotionRepository promotionRepository,
-                          VoucherRepository voucherRepository,
                           UserRepository userRepository) {
         this.productRepository = productRepository;
         this.variantRepository = variantRepository;
@@ -57,7 +55,6 @@ public class CatalogService {
         this.wishlistRepository = wishlistRepository;
         this.viewHistoryRepository = viewHistoryRepository;
         this.promotionRepository = promotionRepository;
-        this.voucherRepository = voucherRepository;
         this.userRepository = userRepository;
     }
 
@@ -170,13 +167,6 @@ public class CatalogService {
 
     public List<Promotion> getRunningPromotions(Shop shop) {
         return promotionRepository.findRunning(LocalDateTime.now(), shop);
-    }
-
-    public List<Voucher> getAvailableVouchersForShop(Shop shop) {
-        if (shop == null) {
-            return voucherRepository.findByShopIsNullAndActiveTrue();
-        }
-        return voucherRepository.findByShopAndActiveTrue(shop);
     }
 
     public Optional<User> findUserByUsername(String username) {

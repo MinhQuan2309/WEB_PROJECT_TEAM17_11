@@ -181,7 +181,7 @@ mat khau da BCrypt va tim kiem san pham chay.
 - [x] Layout Bootstrap (`layout/base.html`) + fragment navbar / footer / pagination / product-card
 - [x] Trang dang nhap, trang chu Guest (10 san pham ban chay), dashboard trong cho 4 khu vuc
 - [x] `CloudinaryService` va `ProductSearchService` — hai diem giao dung chung
-- [x] Test khoi dong tren H2 (7 test, `./mvnw test` xanh)
+- [x] Test tren H2: 48 test, `./mvnw test` xanh
 - [x] Da chay that voi SQL Server: 21 bang duoc tao, seed vao du lieu, trang chu ra 10 san pham,
       5 vai dang nhap vao dung khu vuc, khach bi chan khoi `/admin` (403)
 
@@ -202,6 +202,27 @@ Diem bat dau cua tung nguoi:
   Lam tiep trang chu User 4 block 20 san pham, trang danh muc, chi tiet san pham, roi `cart` va `checkout`.
 - **Thien**: `module/vendor/VendorHomeController.java` va `module/shipper/ShipperHomeController.java`
   (route da duoc phan quyen san). Lam tiep dang ky shop, CRUD san pham, don hang theo 7 trang thai.
+
+### Kiem duyet shop (da xong)
+
+Mat xich noi luong dang ky shop cua Thien voi khu /vendor:
+
+- `/admin/shops` - Admin, pham vi toan san, them quyen phan cong nguoi quan ly
+- `/manager/shops` - Manager, chi thay shop minh quan ly va shop chua ai nhan.
+  Duyet mot shop chua ai nhan thi nhan luon shop do.
+
+Vong doi trang thai:
+
+```
+PENDING  --duyet-->  ACTIVE  --tam dung-->  SUSPENDED --mo lai--> ACTIVE
+   |
+   +--tu choi--> REJECTED --mo lai ho so--> PENDING
+```
+
+Duyet shop la luc duy nhat chu shop duoc nang tu USER len VENDOR.
+
+TODO ban giao cho Thien: them nut "gui lai ho so" ben /vendor de chu shop tu
+chuyen REJECTED -> PENDING sau khi sua thong tin, khoi phai nho Admin mo ho.
 
 ### Con lai cua Quan
 

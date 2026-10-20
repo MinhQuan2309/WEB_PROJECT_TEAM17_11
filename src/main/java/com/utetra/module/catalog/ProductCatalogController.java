@@ -2,7 +2,6 @@ package com.utetra.module.catalog;
 
 import com.utetra.entity.Category;
 import com.utetra.entity.Product;
-import com.utetra.entity.Shop;
 import com.utetra.entity.User;
 import com.utetra.module.search.ProductSearchService;
 import com.utetra.module.search.dto.ProductFilter;
@@ -19,7 +18,8 @@ import java.math.BigDecimal;
 import java.security.Principal;
 
 /**
- * Controller danh muc san pham, tim kiem/loc da tieu chi, xem trang shop va chi tiet san pham.
+ * Controller danh muc san pham, tim kiem/loc da tieu chi (Tuan 1) va chi tiet san pham (Tuan 2).
+ * Luu y: Route /shop/{id} do ShopPublicController (module/vendor cua Thien) phu trach.
  */
 @Controller
 public class ProductCatalogController {
@@ -35,7 +35,6 @@ public class ProductCatalogController {
 
     /**
      * Trang danh sach san pham theo danh muc + bo loc gia + shop + sap xep + phan trang.
-     * Dung ProductSearchService cua Quan.
      */
     @GetMapping({"/products", "/search"})
     public String listProducts(@RequestParam(required = false) String keyword,
@@ -79,11 +78,8 @@ public class ProductCatalogController {
         return listProducts(keyword, category.getId(), shopId, minPrice, maxPrice, sort, page, size, model);
     }
 
-    // Trang cong khai cua shop (/shop/{id}) do ShopPublicController ben module vendor
-    // phu trach (phan cua Thien). O day khong khai bao lai de tranh trung mapping.
-
     /**
-     * Trang chi tiet san pham (/products/{id}).
+     * Trang chi tiet san pham (/products/{id}) — Tuan 2.
      */
     @GetMapping("/products/{id}")
     public String productDetail(@PathVariable Long id,

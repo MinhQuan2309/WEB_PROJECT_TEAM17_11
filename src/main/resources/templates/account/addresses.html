@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Sổ địa chỉ nhận hàng</title>
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/hai-storefront.css}"/>
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small mb-0">
+            <li class="breadcrumb-item"><a th:href="@{/account}">Tài khoản</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Sổ địa chỉ nhận hàng</li>
+        </ol>
+    </nav>
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle-fill me-1"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+        <!-- Form thêm / cập nhật địa chỉ -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h5 fw-bold mb-3 section-header-bar"
+                        th:text="${addressForm.id != null ? 'Cập nhật địa chỉ nhận hàng' : 'Thêm địa chỉ nhận hàng mới'}">
+                        Thêm địa chỉ
+                    </h1>
+
+                    <form th:action="@{/account/addresses/save}" method="post">
+                        <input type="hidden" name="id" th:value="${addressForm.id}"/>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Họ tên người nhận *</label>
+                            <input type="text" name="receiverName" class="form-control"
+                                   th:value="${addressForm.receiverName}" required placeholder="Nguyễn Văn A"/>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Số điện thoại nhận hàng *</label>
+                            <input type="text" name="phone" class="form-control"
+                                   th:value="${addressForm.phone}" required placeholder="0901234567"/>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Số nhà, tên đường *</label>
+                            <input type="text" name="street" class="form-control"
+                                   th:value="${addressForm.street}" required placeholder="Số 1 Võ Văn Ngân"/>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-4">
+                                <label class="form-label small fw-semibold">Phường / Xã</label>
+                                <input type="text" name="ward" class="form-control form-control-sm"
+                                       th:value="${addressForm.ward}" placeholder="Linh Chiểu"/>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label small fw-semibold">Quận / Huyện</label>
+                                <input type="text" name="district" class="form-control form-control-sm"
+                                       th:value="${addressForm.district}" placeholder="TP. Thủ Đức"/>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label small fw-semibold">Tỉnh / Thành phố</label>
+                                <input type="text" name="province" class="form-control form-control-sm"
+                                       th:value="${addressForm.province}" placeholder="TP. Hồ Chí Minh"/>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="defaultAddressCheck"
+                                   name="defaultAddress" th:checked="${addressForm.defaultAddress}"/>
+                            <label class="form-check-label small" for="defaultAddressCheck">
+                                Đặt làm địa chỉ nhận hàng mặc định
+                            </label>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="bi bi-check2-circle me-1"></i>
+                                <span th:text="${addressForm.id != null ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ'}">Lưu</span>
+                            </button>
+                            <a th:if="${addressForm.id != null}" th:href="@{/account/addresses}"
+                               class="btn btn-outline-secondary">Hủy sửa</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách các địa chỉ đã lưu -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 fw-bold mb-0 section-header-bar">Danh sách địa chỉ đã lưu</h2>
+                        <span class="badge bg-secondary" th:text="${addresses.size()} + ' địa chỉ'">0 địa chỉ</span>
+                    </div>
+
+                    <div th:if="${addresses.isEmpty()}" class="alert alert-light border text-center py-4 mb-0">
+                        <i class="bi bi-geo-alt fs-2 text-muted d-block mb-2"></i>
+                        Bạn chưa có địa chỉ nhận hàng nào. Hãy điền biểu mẫu bên trái để thêm địa chỉ đầu tiên!
+                    </div>
+
+                    <div class="d-flex flex-column gap-3" th:if="${!addresses.isEmpty()}">
+                        <div class="border rounded-3 p-3 bg-white"
+                             th:each="addr : ${addresses}"
+                             th:classappend="${addr.defaultAddress} ? 'border-success bg-success bg-opacity-10'">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                <div>
+                                    <div class="fw-bold">
+                                        <i class="bi bi-person-fill me-1 text-secondary"></i>
+                                        <span th:text="${addr.receiverName}">Người nhận</span>
+                                        <span class="text-muted fw-normal mx-1">|</span>
+                                        <i class="bi bi-telephone-fill me-1 text-secondary"></i>
+                                        <span th:text="${addr.phone}">SĐT</span>
+                                        <span th:if="${addr.defaultAddress}" class="badge bg-success ms-2">Mặc định</span>
+                                    </div>
+                                    <div class="small text-secondary mt-1">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                        <span th:text="${addr.fullAddress()}">Địa chỉ đầy đủ</span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-1">
+                                    <form th:if="${!addr.defaultAddress}"
+                                          th:action="@{/account/addresses/{id}/default(id=${addr.id})}"
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            Đặt mặc định
+                                        </button>
+                                    </form>
+                                    <a th:href="@{/account/addresses(editId=${addr.id})}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i> Sửa
+                                    </a>
+                                    <form th:action="@{/account/addresses/{id}/delete(id=${addr.id})}"
+                                          method="post" class="d-inline"
+                                          onsubmit="return confirm('Bạn có chắc muốn xóa địa chỉ này?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

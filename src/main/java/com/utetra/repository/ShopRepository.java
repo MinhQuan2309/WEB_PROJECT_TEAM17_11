@@ -24,4 +24,17 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
     List<Shop> findByManager(User manager);
 
     Page<Shop> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    // ===== Them cho man kiem duyet shop (Quan) =====
+
+    List<Shop> findAllByOrderByIdDesc();
+
+    List<Shop> findByStatusOrderByIdDesc(ShopStatus status);
+
+    /** Shop cua mot Manager, cong them shop chua ai nhan quan ly. */
+    List<Shop> findByManagerOrManagerIsNullOrderByIdDesc(User manager);
+
+    List<Shop> findByStatusAndManagerOrManagerIsNullOrderByIdDesc(ShopStatus status, User manager);
+
+    long countByStatus(ShopStatus status);
 }

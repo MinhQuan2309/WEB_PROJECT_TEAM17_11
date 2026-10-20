@@ -1,5 +1,6 @@
 package com.utetra.module.admin;
 
+import com.utetra.entity.ShopStatus;
 import com.utetra.repository.OrderRepository;
 import com.utetra.repository.ProductRepository;
 import com.utetra.repository.ShopRepository;
@@ -39,6 +40,7 @@ public class AdminDashboardController {
         model.addAttribute("productCount", productRepository.count());
         model.addAttribute("orderCount", orderRepository.count());
         model.addAttribute("revenue", orderRepository.revenueOfPlatform());
+        model.addAttribute("pendingShopCount", shopRepository.countByStatus(ShopStatus.PENDING));
         return "admin/dashboard";
     }
 }

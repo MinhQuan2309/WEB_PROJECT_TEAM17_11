@@ -1,4 +1,4 @@
-// Script xu ly Lazy Loading 4 block Trang chu, tinh gia dong trang Chi tiet SP va dem ky tu Binh luan
+// Script xu ly Lazy Loading 4 block Trang chu va tinh gia dong trang Chi tiet SP (Hai phu trach)
 document.addEventListener('DOMContentLoaded', function () {
 
     // 1. Lazy loading cho 4 block 20 san pham tren trang chu User
@@ -96,26 +96,5 @@ document.addEventListener('DOMContentLoaded', function () {
             qtyInput.addEventListener('change', recalculatePrice);
         }
         recalculatePrice();
-    }
-
-    // 3. Bo dem ky tu binh luan (>= 50 ky tu)
-    const reviewTextarea = document.getElementById('reviewContentInput');
-    const reviewCounter = document.getElementById('reviewCharCounter');
-    const reviewSubmitBtn = document.getElementById('reviewSubmitBtn');
-    if (reviewTextarea && reviewCounter) {
-        const updateCounter = () => {
-            const len = reviewTextarea.value.trim().length;
-            reviewCounter.textContent = `${len}/50 ký tự tối thiểu`;
-            if (len >= 50) {
-                reviewCounter.classList.remove('text-danger');
-                reviewCounter.classList.add('text-success');
-                if (reviewSubmitBtn) reviewSubmitBtn.disabled = false;
-            } else {
-                reviewCounter.classList.remove('text-success');
-                reviewCounter.classList.add('text-danger');
-            }
-        };
-        reviewTextarea.addEventListener('input', updateCounter);
-        updateCounter();
     }
 });
