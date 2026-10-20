@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Thông tin cá nhân</title>
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/hai-storefront.css}"/>
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle-fill me-1"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+        <!-- Menu tài khoản bên trái -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body text-center">
+                    <img class="rounded-circle border mb-2"
+                         style="width: 84px; height: 84px; object-fit: cover;"
+                         th:src="${user.avatarUrl != null and !user.avatarUrl.isBlank()} ? ${user.avatarUrl} : 'https://placehold.co/150x150?text=User'"
+                         alt="Avatar"/>
+                    <h2 class="h6 fw-bold mb-0" th:text="${user.fullName}">Họ tên</h2>
+                    <small class="text-muted d-block mb-2" th:text="'@' + ${user.username}">@username</small>
+                    <span class="badge bg-secondary" th:text="${user.role.label}">Khách hàng</span>
+                </div>
+                <div class="list-group list-group-flush small">
+                    <a th:href="@{/account}" class="list-group-item list-group-item-action active">
+                        <i class="bi bi-person-badge me-2"></i> Hồ sơ &amp; Đổi mật khẩu
+                    </a>
+                    <a th:href="@{/account/addresses}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-geo-alt me-2"></i> Sổ địa chỉ nhận hàng
+                        <span class="badge bg-secondary float-end" th:text="${addresses != null ? addresses.size() : 0}">0</span>
+                    </a>
+                    <a th:href="@{/orders}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-receipt me-2"></i> Lịch sử mua hàng
+                    </a>
+                    <a th:href="@{/wishlist}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-heart me-2"></i> Sản phẩm yêu thích
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nội dung bên phải -->
+        <div class="col-lg-9">
+            <div class="row g-4">
+                <!-- Cập nhật thông tin cá nhân -->
+                <div class="col-md-7">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <h1 class="h5 fw-bold mb-3 section-header-bar">Hồ sơ cá nhân</h1>
+                            <form th:action="@{/account/profile}" method="post" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Tên đăng nhập</label>
+                                    <input type="text" class="form-control bg-light" th:value="${user.username}" disabled/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Họ và tên *</label>
+                                    <input type="text" name="fullName" class="form-control"
+                                           th:value="${profileForm.fullName}" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Email *</label>
+                                    <input type="email" name="email" class="form-control"
+                                           th:value="${profileForm.email}" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Số điện thoại</label>
+                                    <input type="text" name="phone" class="form-control"
+                                           th:value="${profileForm.phone}"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">URL Ảnh đại diện (hoặc tải file bên dưới)</label>
+                                    <input type="text" name="avatarUrl" class="form-control form-control-sm mb-2"
+                                           th:value="${profileForm.avatarUrl}" placeholder="https://..."/>
+                                    <input type="file" name="avatarFile" accept="image/*" class="form-control form-control-sm"/>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save me-1"></i> Lưu thay đổi
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Đổi mật khẩu -->
+                <div class="col-md-5">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <h2 class="h5 fw-bold mb-3 section-header-bar">Đổi mật khẩu</h2>
+                            <form th:action="@{/account/password}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Mật khẩu hiện tại *</label>
+                                    <input type="password" name="currentPassword" class="form-control" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Mật khẩu mới (tối thiểu 6 ký tự) *</label>
+                                    <input type="password" name="newPassword" minlength="6" class="form-control" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Xác nhận mật khẩu mới *</label>
+                                    <input type="password" name="confirmPassword" minlength="6" class="form-control" required/>
+                                </div>
+                                <button type="submit" class="btn btn-outline-dark w-100">
+                                    <i class="bi bi-shield-lock me-1"></i> Cập nhật mật khẩu
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tóm tắt sổ địa chỉ nhận hàng -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 fw-bold mb-0 section-header-bar">Địa chỉ nhận hàng của bạn</h2>
+                        <a th:href="@{/account/addresses}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i> Quản lý / Thêm địa chỉ
+                        </a>
+                    </div>
+                    <div th:if="${addresses == null or addresses.isEmpty()}" class="text-muted small">
+                        Bạn chưa lưu địa chỉ nhận hàng nào. Hãy thêm địa chỉ để thanh toán nhanh hơn.
+                    </div>
+                    <div class="list-group list-group-flush" th:if="${addresses != null and !addresses.isEmpty()}">
+                        <div class="list-group-item px-0 d-flex justify-content-between align-items-center"
+                             th:each="addr : ${addresses}">
+                            <div>
+                                <div class="fw-semibold">
+                                    <span th:text="${addr.receiverName}">Người nhận</span>
+                                    <span class="text-muted fw-normal ms-2" th:text="${addr.phone}">SĐT</span>
+                                    <span th:if="${addr.defaultAddress}" class="badge bg-success ms-2">Mặc định</span>
+                                </div>
+                                <div class="small text-muted" th:text="${addr.fullAddress()}">Địa chỉ</div>
+                            </div>
+                            <a th:href="@{/account/addresses(editId=${addr.id})}" class="btn btn-sm btn-outline-secondary">Sửa</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sản phẩm đã xem gần đây -->
+            <div class="card border-0 shadow-sm mt-4" th:if="${recentlyViewed != null and !recentlyViewed.isEmpty()}">
+                <div class="card-body p-4">
+                    <h2 class="h5 fw-bold mb-3 section-header-bar">Sản phẩm đã xem gần đây</h2>
+                    <div class="row row-cols-2 row-cols-md-4 g-3">
+                        <div class="col" th:each="vh : ${recentlyViewed}">
+                            <div th:replace="~{fragments/product-card :: card(${vh.product})}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
