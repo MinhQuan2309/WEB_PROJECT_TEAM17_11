@@ -54,6 +54,7 @@ public class VendorHomeController {
         model.addAttribute("toppingCount", toppingRepository.countByShop(shop));
         model.addAttribute("orderCount", orderRepository.countByShop(shop));
         model.addAttribute("orderCounts", orderCounts);
+        model.addAttribute("newOrderCount", orderCounts.get(OrderStatus.NEW));
         model.addAttribute("revenue", orderRepository.revenueOfShop(shop));
         return "vendor/dashboard";
     }
