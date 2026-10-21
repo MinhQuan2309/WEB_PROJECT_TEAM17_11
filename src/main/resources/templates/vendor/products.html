@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Sản phẩm của shop</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h4 mb-0">Sản phẩm của shop</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor}">Về dashboard</a>
+            <a class="btn btn-sm btn-primary" th:href="@{/vendor/products/new}">
+                <i class="bi bi-plus-lg"></i> Thêm sản phẩm
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+    <div class="alert alert-danger" th:if="${formError != null}" th:text="${formError}"></div>
+    <div class="alert alert-warning" th:if="${uploadError != null}" th:text="${uploadError}"></div>
+
+    <ul class="nav nav-pills mb-3">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activeFilter == null} ? 'active'"
+               th:href="@{/vendor/products}">Tất cả</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activeFilter != null and activeFilter} ? 'active'"
+               th:href="@{/vendor/products(active=true)}">Đang bán</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activeFilter != null and !activeFilter} ? 'active'"
+               th:href="@{/vendor/products(active=false)}">Đã tắt</a>
+        </li>
+    </ul>
+
+    <div class="table-responsive">
+        <table class="table align-middle bg-white">
+            <thead>
+            <tr>
+                <th style="width:72px">Ảnh</th>
+                <th>Sản phẩm</th>
+                <th class="text-end">Giá cơ sở</th>
+                <th class="text-center">Size</th>
+                <th class="text-center">Đã bán</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-end">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${products.content}">
+                <td>
+                    <img th:src="${p.imageUrl != null} ? ${p.imageUrl} : 'https://placehold.co/80x60?text=UTETra'"
+                         th:alt="${p.name}" class="rounded border"
+                         style="width:64px;height:48px;object-fit:cover"/>
+                </td>
+                <td>
+                    <div class="fw-semibold" th:text="${p.name}">Tên sản phẩm</div>
+                    <small class="text-muted"
+                           th:text="${p.category != null} ? ${p.category.name} : 'Chưa có danh mục'">Danh mục</small>
+                </td>
+                <td class="text-end"
+                    th:text="${#numbers.formatInteger(p.basePrice, 0, 'POINT')} + ' đ'">0 đ</td>
+                <td class="text-center" th:text="${variantCounts.get(p.id)}">0</td>
+                <td class="text-center" th:text="${p.soldCount}">0</td>
+                <td class="text-center">
+                    <span class="badge" th:classappend="${p.active} ? 'text-bg-success' : 'text-bg-secondary'"
+                          th:text="${p.active} ? 'Đang bán' : 'Đã tắt'">Trạng thái</span>
+                </td>
+                <td class="text-end">
+                    <div class="d-inline-flex gap-1">
+                        <a class="btn btn-sm btn-outline-primary"
+                           th:href="@{'/vendor/products/' + ${p.id} + '/edit'}">
+                            <i class="bi bi-pencil"></i> Sửa
+                        </a>
+                        <form th:action="@{'/vendor/products/' + ${p.id} + '/toggle'}" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                    th:text="${p.active} ? 'Tắt bán' : 'Bật bán'">Bật/Tắt</button>
+                        </form>
+                        <form th:action="@{'/vendor/products/' + ${p.id} + '/delete'}" method="post"
+                              onsubmit="return confirm('Xóa sản phẩm này? Sản phẩm đã có trong đơn hàng sẽ không xóa được.');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${products.isEmpty()}">
+                <td colspan="7" class="text-center text-muted py-4">
+                    Shop chưa có sản phẩm nào.
+                    <a th:href="@{/vendor/products/new}">Thêm sản phẩm đầu tiên</a>.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pager(${products}, '/vendor/products')}"></div>
+
+</div>
+
+</body>
+</html>

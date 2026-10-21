@@ -17,4 +17,9 @@ import java.util.Optional;
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
 
     List<ProductVariant> findByProduct(Product product);
+
+    // ===== Them cho module vendor (Thien) =====
+
+    /** Size cua san pham theo thu tu tao, dung khi Vendor sua form san pham. */
+    List<ProductVariant> findByProductOrderByIdAsc(Product product);
 }

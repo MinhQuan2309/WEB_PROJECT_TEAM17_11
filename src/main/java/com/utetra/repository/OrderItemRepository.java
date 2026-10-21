@@ -17,4 +17,9 @@ import java.util.Optional;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     List<OrderItem> findByOrder(Order order);
+
+    // ===== Them cho module vendor (Thien) =====
+
+    /** San pham da tung nam trong don hang thi khong cho xoa cung. */
+    boolean existsByProduct(Product product);
 }

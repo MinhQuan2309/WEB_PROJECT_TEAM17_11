@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Topping của shop</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Topping của shop</h1>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor}">Về dashboard</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+    <div class="alert alert-danger" th:if="${formError != null}" th:text="${formError}"></div>
+
+    <!-- Thêm topping mới -->
+    <form th:action="@{/vendor/toppings}" th:object="${form}" method="post"
+          class="card card-body shadow-sm mb-4">
+        <h2 class="h6 text-uppercase text-muted mb-3">Thêm topping</h2>
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label" for="name">Tên topping <span class="text-danger">*</span></label>
+                <input id="name" type="text" class="form-control"
+                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                       th:field="*{name}" maxlength="100" placeholder="Trân châu đen"/>
+                <div class="invalid-feedback" th:errors="*{name}"></div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="price">Giá (đ) <span class="text-danger">*</span></label>
+                <input id="price" type="number" min="0" step="1000" class="form-control"
+                       th:classappend="${#fields.hasErrors('price')} ? 'is-invalid'"
+                       th:field="*{price}"/>
+                <div class="invalid-feedback" th:errors="*{price}"></div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="active" th:field="*{active}"/>
+                    <label class="form-check-label" for="active">Đang bán</label>
+                </div>
+            </div>
+            <div class="col-md-2 text-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-plus-lg"></i> Thêm
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <h2 class="h6 text-uppercase text-muted mb-3">Danh sách topping</h2>
+    <div class="table-responsive">
+        <table class="table align-middle bg-white">
+            <thead>
+            <tr>
+                <th>Tên topping</th>
+                <th style="width:200px">Giá (đ)</th>
+                <th style="width:140px" class="text-center">Trạng thái</th>
+                <th style="width:260px" class="text-end">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${toppings}">
+                <td colspan="4" class="p-0">
+                    <form th:action="@{'/vendor/toppings/' + ${t.id}}" method="post"
+                          class="row g-2 align-items-center m-0 p-2">
+                        <div class="col-4">
+                            <input type="text" class="form-control form-control-sm" name="name"
+                                   th:value="${t.name}" maxlength="100"/>
+                        </div>
+                        <div class="col-3">
+                            <input type="number" min="0" step="1000" class="form-control form-control-sm"
+                                   name="price" th:value="${t.price}"/>
+                        </div>
+                        <div class="col-2 text-center">
+                            <span class="badge" th:classappend="${t.active} ? 'text-bg-success' : 'text-bg-secondary'"
+                                  th:text="${t.active} ? 'Đang bán' : 'Đã tắt'">Trạng thái</span>
+                            <input type="hidden" name="active" value="false"/>
+                            <div class="form-check form-switch d-inline-block ms-1">
+                                <input class="form-check-input" type="checkbox" name="active" value="true"
+                                       th:checked="${t.active}"/>
+                            </div>
+                        </div>
+                        <div class="col-3 text-end d-flex gap-1 justify-content-end">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-save"></i> Lưu
+                            </button>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                    th:formaction="@{'/vendor/toppings/' + ${t.id} + '/toggle'}">
+                                <span th:text="${t.active} ? 'Tắt' : 'Bật'">Bật/Tắt</span>
+                            </button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    th:formaction="@{'/vendor/toppings/' + ${t.id} + '/delete'}"
+                                    onclick="return confirm('Xóa topping này?');">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${toppings.isEmpty()}">
+                <td colspan="4" class="text-center text-muted py-4">Shop chưa có topping nào.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="text-muted small">
+        Topping đang nằm trong giỏ hàng của khách sẽ không xóa được, hãy dùng nút Tắt.
+    </p>
+
+</div>
+
+</body>
+</html>

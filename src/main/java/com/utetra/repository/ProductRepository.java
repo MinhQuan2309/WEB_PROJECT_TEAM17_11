@@ -49,6 +49,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     @EntityGraph(attributePaths = {"category"})
     Page<Product> findByShopOrderByIdDesc(Shop shop, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"category"})
+    Page<Product> findByShopAndActiveOrderByIdDesc(Shop shop, boolean active, Pageable pageable);
+
     long countByShop(Shop shop);
 
     long countByShopAndActiveTrue(Shop shop);
