@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Sản phẩm yêu thích &amp; Đã xem</title>
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/hai-storefront.css}"/>
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h4 fw-bold mb-0 section-header-bar">
+                <i class="bi bi-heart-fill text-danger me-1"></i> Sản phẩm yêu thích của bạn
+            </h1>
+            <small class="text-muted">Lưu giữ những món trà sữa bạn yêu thích để đặt nhanh bất cứ lúc nào</small>
+        </div>
+        <a th:href="@{/products}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-cup-straw me-1"></i> Khám phá thêm thực đơn
+        </a>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle-fill me-1"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${wishlistPage.isEmpty()}" class="card border-0 shadow-sm text-center py-5 mb-5">
+        <div class="card-body">
+            <i class="bi bi-heart display-4 text-muted d-block mb-3"></i>
+            <h2 class="h5 fw-bold">Chưa có sản phẩm yêu thích nào</h2>
+            <p class="text-muted mb-3">Hãy bấm biểu tượng trái tim ở trang chi tiết món để thêm vào danh sách yêu thích nhé!</p>
+            <a th:href="@{/products}" class="btn btn-primary">Xem thực đơn</a>
+        </div>
+    </div>
+
+    <!-- Danh sach san pham yeu thich -->
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 mb-4" th:if="${!wishlistPage.isEmpty()}">
+        <div class="col" th:each="w : ${wishlistPage.content}">
+            <div class="card h-100 shadow-sm border-0">
+                <a th:href="@{/products/{id}(id=${w.product.id})}">
+                    <img class="card-img-top product-thumb"
+                         th:src="${w.product.imageUrl != null} ? ${w.product.imageUrl} : 'https://placehold.co/400x300?text=UTETra'"
+                         th:alt="${w.product.name}"/>
+                </a>
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title mb-1">
+                        <a th:href="@{/products/{id}(id=${w.product.id})}"
+                           class="text-dark text-decoration-none"
+                           th:text="${w.product.name}">Tên món</a>
+                    </h6>
+                    <div class="small text-muted mb-2" th:text="${w.product.shop.name}">Shop</div>
+                    <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top">
+                        <span class="fw-bold text-danger"
+                              th:text="${#numbers.formatInteger(w.product.basePrice, 0, 'POINT')} + ' đ'">0 đ</span>
+                        <div class="d-flex gap-1">
+                            <a th:href="@{/products/{id}(id=${w.product.id})}" class="btn btn-sm btn-primary">
+                                Chọn mua
+                            </a>
+                            <form th:action="@{/wishlist/toggle/{id}(id=${w.product.id})}" method="post">
+                                <input type="hidden" name="redirectUrl" value="/wishlist"/>
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Bỏ yêu thích">
+                                    <i class="bi bi-heartbreak"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pager(${wishlistPage}, '/wishlist')}"></div>
+
+    <!-- Lich su san pham da xem -->
+    <div class="mt-5" th:if="${recentlyViewed != null and !recentlyViewed.isEmpty()}">
+        <h2 class="h5 fw-bold mb-3 section-header-bar">
+            <i class="bi bi-clock-history text-secondary me-1"></i> Lịch sử sản phẩm bạn đã xem
+        </h2>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+            <div class="col" th:each="vh : ${recentlyViewed}">
+                <div th:replace="~{fragments/product-card :: card(${vh.product})}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
