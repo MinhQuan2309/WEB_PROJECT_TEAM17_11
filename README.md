@@ -130,13 +130,12 @@ Chay bang dong lenh thi khong can buoc 3:
    > bi luu thanh dau hoi, vi du "Sinh to" thanh "Sinh t?". Tu commit
    > `fix(jpa): dung nvarchar` thi cot moi duoc tao kieu `nvarchar`.
    >
-   > ```sql
-   > ALTER DATABASE utetra SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-   > DROP DATABASE utetra;
-   > CREATE DATABASE utetra COLLATE Vietnamese_CI_AS;
-   > ```
+   > Mo SQL Server Management Studio va chay file
+   > [`docs/sql/tao-lai-database.sql`](docs/sql/tao-lai-database.sql),
+   > sau do chay lai app de `DataSeeder` tao lai du lieu mau.
    >
-   > Chay lai app, `DataSeeder` se tao lai du lieu mau.
+   > Muon kiem tra da dung chua thi chay tiep
+   > [`docs/sql/kiem-tra-unicode.sql`](docs/sql/kiem-tra-unicode.sql).
 2. Copy cau hinh rieng va dien mat khau:
 
    ```bash
