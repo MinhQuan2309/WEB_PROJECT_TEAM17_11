@@ -15,8 +15,11 @@
                 <div class="card-body p-4">
                     <h1 class="h5 mb-3">Đăng nhập</h1>
 
+                    <div class="alert alert-success py-2" th:if="${successMessage}"
+                         th:text="${successMessage}"></div>
                     <div class="alert alert-danger py-2" th:if="${param.error}">
-                        Sai tên đăng nhập hoặc mật khẩu.
+                        Sai tên đăng nhập hoặc mật khẩu. Nếu bạn vừa đăng ký, hãy
+                        <a th:href="@{/verify-otp}">kích hoạt tài khoản</a> trước.
                     </div>
                     <div class="alert alert-success py-2" th:if="${param.logout}">
                         Đã đăng xuất.

@@ -226,8 +226,24 @@ chuyen REJECTED -> PENDING sau khi sua thong tin, khoi phai nho Admin mo ho.
 
 ### Con lai cua Quan
 
-- [ ] Tuan 2: dang ky + OTP email, kich hoat tai khoan, quen mat khau, dat lai mat khau (`module/auth`)
-- [ ] Tuan 2: `POST /api/auth/login` tra JWT
+- [x] Dang ky + OTP email, kich hoat tai khoan, quen mat khau, dat lai mat khau (`module/auth`)
+- [x] `POST /api/auth/login` tra JWT
+
+#### Chay thu OTP khong can Gmail
+
+Chua dien `spring.mail.username` trong `application-local.properties` thi he thong
+KHONG gui mail that, ma in ma OTP ra Console cua ung dung:
+
+```
+================== OTP (CHE DO THU NGHIEM) ==================
+Email nhan : nguoidung@example.com
+MA OTP     : 965431
+Het han sau: 5 phut
+=============================================================
+```
+
+Nho vay ca nhom thu duoc luong dang ky va quen mat khau ngay. Khi nop bai thi dien
+App Password cua Gmail vao la gui email that, khong phai sua code.
 - [ ] Tuan 3: CRUD danh muc
 - [ ] Tuan 4: quan ly user, chiet khau app, khuyen mai san, nha van chuyen (`module/admin`, `module/manager`)
 
