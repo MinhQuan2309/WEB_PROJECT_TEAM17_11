@@ -124,6 +124,19 @@ Chay bang dong lenh thi khong can buoc 3:
    ```sql
    CREATE DATABASE utetra COLLATE Vietnamese_CI_AS;
    ```
+
+   > **Neu may ban da tao database tu truoc ngay 22/10**: phai XOA roi tao lai.
+   > Luc do Hibernate con tao cot `varchar` (khong Unicode) nen ten tieng Viet
+   > bi luu thanh dau hoi, vi du "Sinh to" thanh "Sinh t?". Tu commit
+   > `fix(jpa): dung nvarchar` thi cot moi duoc tao kieu `nvarchar`.
+   >
+   > ```sql
+   > ALTER DATABASE utetra SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+   > DROP DATABASE utetra;
+   > CREATE DATABASE utetra COLLATE Vietnamese_CI_AS;
+   > ```
+   >
+   > Chay lai app, `DataSeeder` se tao lai du lieu mau.
 2. Copy cau hinh rieng va dien mat khau:
 
    ```bash
