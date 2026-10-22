@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Lịch sử mua hàng</title>
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/hai-storefront.css}"/>
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h4 fw-bold mb-0 section-header-bar">
+                <i class="bi bi-receipt-cutoff me-1"></i> Lịch sử mua hàng
+            </h1>
+            <small class="text-muted">Theo dõi và quản lý trạng thái các đơn hàng của bạn</small>
+        </div>
+        <span id="wsConnectionBadge" class="badge bg-secondary-subtle text-secondary border">
+            <i class="bi bi-broadcast me-1"></i> Real-time sẵn sàng
+        </span>
+    </div>
+
+    <div id="realtimeOrderAlert" class="alert alert-info d-none shadow-sm" role="alert">
+        <i class="bi bi-bell-fill me-1"></i>
+        <span id="realtimeOrderAlertText">Đơn hàng của bạn vừa được cập nhật trạng thái!</span>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle-fill me-1"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Thanh tab loc don hang theo trang thai -->
+    <div class="d-flex flex-nowrap overflow-auto gap-2 pb-2 mb-4">
+        <a th:href="@{/orders(status='ALL')}"
+           class="btn btn-sm btn-outline-secondary status-tab-link"
+           th:classappend="${selectedStatus == 'ALL'} ? 'active'">
+            Tất cả
+            <span class="badge bg-light text-dark ms-1" th:text="${statusCounts['ALL']}">0</span>
+        </a>
+        <a th:each="st : ${statuses}"
+           th:href="@{/orders(status=${st.name()})}"
+           class="btn btn-sm btn-outline-secondary status-tab-link"
+           th:classappend="${selectedStatus == st.name()} ? 'active'">
+            <span th:text="${st.label}">Trạng thái</span>
+            <span class="badge bg-light text-dark ms-1" th:text="${statusCounts[st.name()]}">0</span>
+        </a>
+    </div>
+
+    <div th:if="${orderPage.isEmpty()}" class="card border-0 shadow-sm text-center py-5">
+        <div class="card-body">
+            <i class="bi bi-box2-heart display-4 text-muted d-block mb-3"></i>
+            <h2 class="h5 fw-bold">Chưa có đơn hàng nào ở trạng thái này</h2>
+            <p class="text-muted mb-3">Hãy đặt những ly trà sữa thơm ngon từ các cửa hàng UTETra nhé!</p>
+            <a th:href="@{/products}" class="btn btn-primary">
+                <i class="bi bi-cup-straw me-1"></i> Đặt trà sữa ngay
+            </a>
+        </div>
+    </div>
+
+    <!-- Danh sach don hang -->
+    <div class="d-flex flex-column gap-3" th:if="${!orderPage.isEmpty()}">
+        <div class="card border-0 shadow-sm"
+             th:each="o : ${orderPage.content}"
+             th:attr="data-order-code=${o.code},data-order-id=${o.id}">
+            <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <i class="bi bi-shop text-warning me-1"></i>
+                    <a th:href="@{/shop/{id}(id=${o.shop.id})}"
+                       class="fw-bold text-dark text-decoration-none"
+                       th:text="${o.shop.name}">Tên Shop</a>
+                    <span class="text-muted mx-2">|</span>
+                    <span class="small text-muted">Mã đơn: <strong class="text-dark" th:text="${o.code}">UTE...</strong></span>
+                    <span class="text-muted mx-2">|</span>
+                    <small class="text-muted"
+                           th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'dd/MM/yyyy HH:mm') : ''}"></small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge js-order-status-badge"
+                          th:classappend="${o.status.name() == 'DELIVERED' ? 'bg-success' : (o.status.name() == 'CANCELLED' or o.status.name() == 'RETURNED_REFUNDED' ? 'bg-danger' : 'bg-warning text-dark')}"
+                          th:text="${o.status.label}">Đơn hàng mới</span>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-8">
+                        <div class="mb-2" th:each="item : ${o.items}">
+                            <div class="d-flex justify-content-between align-items-start small">
+                                <div>
+                                    <span class="fw-semibold" th:text="${item.quantity} + 'x ' + ${item.productName}">1x Trà sữa</span>
+                                    <span class="badge bg-light text-dark border ms-1" th:text="${item.variantName}">Size M</span>
+                                    <div class="text-muted" th:text="${item.toppingsText}">Topping</div>
+                                </div>
+                                <div class="text-end ms-2">
+                                    <span class="fw-medium"
+                                          th:text="${#numbers.formatInteger(item.lineTotal, 0, 'POINT')} + ' đ'">35.000 đ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 border-start-md ps-md-4 text-md-end">
+                        <div class="small text-muted mb-1">
+                            Thanh toán: <strong th:text="${o.paymentMethod.label}">COD</strong>
+                            (<span th:text="${o.paymentStatus}">PENDING</span>)
+                        </div>
+                        <div class="mb-3">
+                            <span class="small text-muted me-1">Tổng thanh toán:</span>
+                            <span class="h5 fw-bold text-danger mb-0"
+                                  th:text="${#numbers.formatInteger(o.total, 0, 'POINT')} + ' đ'">0 đ</span>
+                        </div>
+                        <div class="d-flex flex-wrap justify-content-md-end gap-2">
+                            <a th:href="@{/orders/{id}(id=${o.id})}" class="btn btn-sm btn-outline-primary">
+                                Xem chi tiết
+                            </a>
+                            <form th:if="${o.status.name() == 'NEW'}"
+                                  th:action="@{/orders/{id}/cancel(id=${o.id})}" method="post"
+                                  onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?');">
+                                <input type="hidden" name="reason" value="Khách hủy từ màn hình danh sách đơn"/>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Hủy đơn
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav th:if="${orderPage.totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${orderPage.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/orders(status=${selectedStatus}, page=${orderPage.number - 1})}">Trước</a>
+            </li>
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, orderPage.totalPages - 1)}"
+                th:classappend="${i == orderPage.number} ? 'active'">
+                <a class="page-link" th:href="@{/orders(status=${selectedStatus}, page=${i})}" th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${orderPage.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/orders(status=${selectedStatus}, page=${orderPage.number + 1})}">Sau</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<th:block layout:fragment="scripts">
+    <!-- Lang nghe su kien doi trang thai don real-time qua WebSocket STOMP -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const badge = document.getElementById('wsConnectionBadge');
+            const alertBox = document.getElementById('realtimeOrderAlert');
+            const alertText = document.getElementById('realtimeOrderAlertText');
+
+            if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') return;
+
+            try {
+                const socket = new SockJS('/ws');
+                const stompClient = Stomp.over(socket);
+                stompClient.debug = null;
+
+                stompClient.connect({}, function () {
+                    if (badge) {
+                        badge.className = 'badge bg-success-subtle text-success border border-success-subtle';
+                        badge.innerHTML = '<i class="bi bi-wifi me-1"></i> Đang kết nối Real-time';
+                    }
+                    stompClient.subscribe('/user/queue/orders', function (message) {
+                        try {
+                            const payload = JSON.parse(message.body);
+                            const code = payload.code || payload.orderCode || '';
+                            const statusLabel = payload.statusLabel || payload.status || 'Đã cập nhật';
+                            if (alertBox && alertText) {
+                                alertText.textContent = 'Đơn hàng ' + code + ' vừa chuyển sang trạng thái: ' + statusLabel;
+                                alertBox.classList.remove('d-none');
+                            }
+                            if (code) {
+                                const card = document.querySelector('[data-order-code="' + code + '"]');
+                                if (card) {
+                                    const statusBadge = card.querySelector('.js-order-status-badge');
+                                    if (statusBadge) {
+                                        statusBadge.textContent = statusLabel;
+                                        statusBadge.className = 'badge bg-info text-dark js-order-status-badge';
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            window.location.reload();
+                        }
+                    });
+                });
+            } catch (err) {}
+        });
+    </script>
+</th:block>
+</body>
+</html>
