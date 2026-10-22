@@ -132,24 +132,24 @@ public class CheckoutService {
         }
         Voucher voucher = voucherRepository.findByCodeAndActiveTrue(voucherCode.trim().toUpperCase())
                 .or(() -> voucherRepository.findByCodeAndActiveTrue(voucherCode.trim()))
-                .orElseThrow(() -> new IllegalArgumentException("Mã giảm giá "" + voucherCode + "" không tồn tại hoặc đã ngừng kích hoạt."));
+                .orElseThrow(() -> new IllegalArgumentException("Mã giảm giá \"" + voucherCode + "\" không tồn tại hoặc đã ngừng kích hoạt."));
 
         LocalDateTime now = LocalDateTime.now();
         if (voucher.getStartAt() != null && now.isBefore(voucher.getStartAt())) {
-            throw new IllegalArgumentException("Mã giảm giá "" + voucher.getCode() + "" chưa đến thời gian có hiệu lực.");
+            throw new IllegalArgumentException("Mã giảm giá \"" + voucher.getCode() + "\" chưa đến thời gian có hiệu lực.");
         }
         if (voucher.getEndAt() != null && now.isAfter(voucher.getEndAt())) {
-            throw new IllegalArgumentException("Mã giảm giá "" + voucher.getCode() + "" đã hết hạn sử dụng.");
+            throw new IllegalArgumentException("Mã giảm giá \"" + voucher.getCode() + "\" đã hết hạn sử dụng.");
         }
         if (voucher.getQuantity() > 0 && voucher.getUsedCount() >= voucher.getQuantity()) {
-            throw new IllegalArgumentException("Mã giảm giá "" + voucher.getCode() + "" đã hết lượt sử dụng.");
+            throw new IllegalArgumentException("Mã giảm giá \"" + voucher.getCode() + "\" đã hết lượt sử dụng.");
         }
         if (voucher.getMinOrderTotal() != null && subtotal.compareTo(voucher.getMinOrderTotal()) < 0) {
             throw new IllegalArgumentException("Đơn hàng chưa đạt giá trị tối thiểu ("
-                    + voucher.getMinOrderTotal().toBigInteger() + " đ) để áp dụng mã "" + voucher.getCode() + "".");
+                    + voucher.getMinOrderTotal().toBigInteger() + " đ) để áp dụng mã \"" + voucher.getCode() + "\".");
         }
         if (voucher.getShop() != null && (shopIdsInCheckout == null || !shopIdsInCheckout.contains(voucher.getShop().getId()))) {
-            throw new IllegalArgumentException("Mã "" + voucher.getCode() + "" chỉ áp dụng cho cửa hàng "
+            throw new IllegalArgumentException("Mã \"" + voucher.getCode() + "\" chỉ áp dụng cho cửa hàng "
                     + voucher.getShop().getName() + ".");
         }
         return voucher;
@@ -333,8 +333,8 @@ public class CheckoutService {
                 ProductVariant variant = ci.getVariant();
                 if (variant != null) {
                     if (variant.getStock() < ci.getQuantity()) {
-                        throw new IllegalArgumentException("Sản phẩm "" + ci.getProduct().getName()
-                                + " (" + variant.getName() + ")" không đủ tồn kho.");
+                        throw new IllegalArgumentException("Sản phẩm \"" + ci.getProduct().getName()
+                                + " (" + variant.getName() + ")\" không đủ tồn kho.");
                     }
                     variant.setStock(variant.getStock() - ci.getQuantity());
                     variantRepository.save(variant);

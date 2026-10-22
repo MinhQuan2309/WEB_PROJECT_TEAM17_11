@@ -44,7 +44,7 @@ public class CartController {
                 return "redirect:/checkout?shopId=" + shopId;
             }
             redirectAttributes.addFlashAttribute("successMessage",
-                    "Đã thêm "" + added.getProduct().getName() + "" vào giỏ hàng!");
+                    "Đã thêm \"" + added.getProduct().getName() + "\" vào giỏ hàng!");
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
             if (request.getProductId() != null) {
