@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Giỏ hàng của bạn</title>
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/hai-storefront.css}"/>
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h4 fw-bold mb-0 section-header-bar">
+                <i class="bi bi-cart3 me-1"></i> Giỏ hàng của bạn
+            </h1>
+            <small class="text-muted">Giỏ hàng được lưu đồng bộ trên cơ sở dữ liệu theo tài khoản của bạn</small>
+        </div>
+        <form th:if="${!cartSummary.isEmpty()}" th:action="@{/cart/clear}" method="post"
+              onsubmit="return confirm('Bạn muốn xóa toàn bộ giỏ hàng?');">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash me-1"></i> Xóa toàn bộ giỏ
+            </button>
+        </form>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle-fill me-1"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Giỏ hàng trống -->
+    <div th:if="${cartSummary.isEmpty()}" class="card border-0 shadow-sm text-center py-5">
+        <div class="card-body">
+            <i class="bi bi-cart-x display-4 text-muted d-block mb-3"></i>
+            <h2 class="h5 fw-bold">Giỏ hàng của bạn đang trống</h2>
+            <p class="text-muted mb-3">Hãy khám phá thực đơn trà sữa, trà trái cây và chọn món yêu thích nhé!</p>
+            <a th:href="@{/products}" class="btn btn-primary">
+                <i class="bi bi-cup-straw me-1"></i> Xem thực đơn ngay
+            </a>
+        </div>
+    </div>
+
+    <!-- Danh sách giỏ hàng nhóm theo từng Shop -->
+    <div class="row g-4" th:if="${!cartSummary.isEmpty()}">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4" th:each="group : ${cartSummary.shopGroups}">
+                <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center">
+                    <div>
+                        <i class="bi bi-shop text-warning me-1"></i>
+                        <a th:href="@{/shop/{id}(id=${group.shopId})}"
+                           class="fw-bold text-dark text-decoration-none"
+                           th:text="${group.shopName}">Tên Shop</a>
+                        <small class="text-muted ms-2" th:text="${group.shopAddress}">Địa chỉ</small>
+                    </div>
+                    <a th:href="@{/checkout(shopId=${group.shopId})}" class="btn btn-sm btn-outline-primary">
+                        Thanh toán riêng Shop này
+                    </a>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light small">
+                            <tr>
+                                <th class="ps-3">Sản phẩm &amp; Tùy chọn</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-center" style="width: 140px;">Số lượng</th>
+                                <th class="text-end">Thành tiền</th>
+                                <th class="text-center pe-3">Xóa</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item : ${group.items}">
+                                <td class="ps-3 py-3">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <img th:src="${item.productImageUrl}" th:alt="${item.productName}"
+                                             class="rounded border" style="width: 68px; height: 54px; object-fit: cover;"/>
+                                        <div>
+                                            <a th:href="@{/products/{id}(id=${item.productId})}"
+                                               class="fw-semibold text-dark text-decoration-none d-block"
+                                               th:text="${item.productName}">Tên món</a>
+                                            <div class="small text-muted">
+                                                <span class="badge bg-light text-dark border me-1" th:text="${item.variantName}">Size M</span>
+                                                <span class="badge bg-light text-secondary border me-1"
+                                                      th:text="'Đường ' + ${item.sugarLevel} + '% · Đá ' + ${item.iceLevel} + '%'">Đường/Đá</span>
+                                            </div>
+                                            <div class="small text-secondary mt-1">
+                                                <strong>Topping:</strong> <span th:text="${item.toppingsText}">Topping</span>
+                                            </div>
+                                            <div class="small text-muted fst-italic" th:if="${item.note != null}">
+                                                Ghi chú: <span th:text="${item.note}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-end fw-medium"
+                                    th:text="${#numbers.formatInteger(item.unitPrice, 0, 'POINT')} + ' đ'">35.000 đ</td>
+                                <td class="text-center">
+                                    <form th:action="@{/cart/update/{id}(id=${item.id})}" method="post"
+                                          class="d-flex justify-content-center align-items-center gap-1">
+                                        <input type="number" name="quantity" min="1" max="50"
+                                               class="form-control form-control-sm text-center"
+                                               style="width: 64px;"
+                                               th:value="${item.quantity}"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Cập nhật">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="text-end fw-bold text-danger"
+                                    th:text="${#numbers.formatInteger(item.lineTotal, 0, 'POINT')} + ' đ'">35.000 đ</td>
+                                <td class="text-center pe-3">
+                                    <form th:action="@{/cart/remove/{id}(id=${item.id})}" method="post">
+                                        <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Xóa món">
+                                            <i class="bi bi-x-circle fs-5"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between align-items-center py-2 px-3">
+                    <span class="small text-muted">
+                        Tổng số ly của Shop: <strong th:text="${group.totalQuantity}">1</strong>
+                    </span>
+                    <div>
+                        <span class="small text-muted me-2">Tạm tính Shop:</span>
+                        <span class="fw-bold text-danger"
+                              th:text="${#numbers.formatInteger(group.subtotal, 0, 'POINT')} + ' đ'">35.000 đ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột tổng kết giỏ hàng bên phải -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 1rem;">
+                <div class="card-body p-4">
+                    <h2 class="h5 fw-bold mb-3 section-header-bar">Tổng kết giỏ hàng</h2>
+
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Số cửa hàng (Shop):</span>
+                        <strong th:text="${cartSummary.shopGroups.size()}">1</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Tổng số dòng món:</span>
+                        <strong th:text="${cartSummary.totalLines}">1</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 small">
+                        <span class="text-muted">Tổng số lượng ly:</span>
+                        <strong th:text="${cartSummary.totalQuantity}">1</strong>
+                    </div>
+
+                    <hr/>
+
+                    <div class="d-flex justify-content-between align-items-baseline mb-3">
+                        <span class="fw-semibold">Tổng tiền hàng tạm tính:</span>
+                        <span class="price-tag-lg"
+                              th:text="${#numbers.formatInteger(cartSummary.grandSubtotal, 0, 'POINT')} + ' đ'">0 đ</span>
+                    </div>
+
+                    <p class="small text-muted mb-3">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Phí vận chuyển và mã giảm giá (Voucher) sẽ được tính ở bước Thanh toán tiếp theo.
+                    </p>
+
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/checkout}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-credit-card me-1"></i> Tiến hành thanh toán
+                        </a>
+                        <a th:href="@{/products}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Tiếp tục chọn thêm món
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

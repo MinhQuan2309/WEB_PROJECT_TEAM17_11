@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Đơn hàng của shop</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h4 mb-0">Đơn hàng của shop</h1>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor}">Về dashboard</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+    <div class="alert alert-danger" th:if="${formError != null}" th:text="${formError}"></div>
+
+    <!-- Lọc theo 7 trạng thái -->
+    <ul class="nav nav-pills flex-wrap mb-3">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${statusFilter == null} ? 'active'"
+               th:href="@{/vendor/orders}">
+                Tất cả
+            </a>
+        </li>
+        <li class="nav-item" th:each="s : ${statuses}">
+            <a class="nav-link" th:classappend="${statusFilter != null and statusFilter == s} ? 'active'"
+               th:href="@{/vendor/orders(status=${s.name()})}">
+                <span th:text="${s.label}">Trạng thái</span>
+                <span class="badge text-bg-light" th:text="${counts.get(s)}">0</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="table-responsive">
+        <table class="table align-middle bg-white">
+            <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Khách nhận</th>
+                <th class="text-end">Tổng tiền</th>
+                <th class="text-center">Thanh toán</th>
+                <th class="text-center">Trạng thái</th>
+                <th style="width:260px" class="text-end">Chuyển trạng thái</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="o : ${orders.content}">
+                <td>
+                    <a class="fw-semibold" th:href="@{'/vendor/orders/' + ${o.id}}"
+                       th:text="${o.code}">DH0001</a>
+                    <div class="small text-muted"
+                         th:text="${#temporals.format(o.createdAt, 'dd/MM/yyyy HH:mm')}">ngày</div>
+                </td>
+                <td>
+                    <div th:text="${o.receiverName}">Tên người nhận</div>
+                    <small class="text-muted" th:text="${o.receiverPhone}">SĐT</small>
+                </td>
+                <td class="text-end fw-semibold"
+                    th:text="${#numbers.formatInteger(o.total, 0, 'POINT')} + ' đ'">0 đ</td>
+                <td class="text-center">
+                    <div th:text="${o.paymentMethod.label}">COD</div>
+                    <small class="text-muted" th:text="${o.paymentStatus}">PENDING</small>
+                </td>
+                <td class="text-center">
+                    <span class="badge"
+                          th:classappend="${o.status.name() == 'DELIVERED'} ? 'text-bg-success'
+                                        : (${o.status.name() == 'CANCELLED' or o.status.name() == 'RETURNED_REFUNDED'} ? 'text-bg-danger'
+                                        : (${o.status.name() == 'NEW'} ? 'text-bg-warning' : 'text-bg-info'))"
+                          th:text="${o.status.label}">Trạng thái</span>
+                </td>
+                <td class="text-end">
+                    <form th:if="${!nextStates.get(o.status).isEmpty()}"
+                          th:action="@{'/vendor/orders/' + ${o.id} + '/status'}" method="post"
+                          class="d-flex gap-1 justify-content-end">
+                        <input type="hidden" name="returnTo" value="list"/>
+                        <select class="form-select form-select-sm" name="status" style="max-width:150px">
+                            <option th:each="next : ${nextStates.get(o.status)}"
+                                    th:value="${next.name()}" th:text="${next.label}">Bước tiếp</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Đổi</button>
+                    </form>
+                    <span class="text-muted small" th:if="${nextStates.get(o.status).isEmpty()}">
+                        Đã kết thúc
+                    </span>
+                </td>
+            </tr>
+            <tr th:if="${orders.isEmpty()}">
+                <td colspan="6" class="text-center text-muted py-4">
+                    Chưa có đơn hàng nào ở mục này.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pager(${orders}, '/vendor/orders')}"></div>
+
+</div>
+
+</body>
+</html>

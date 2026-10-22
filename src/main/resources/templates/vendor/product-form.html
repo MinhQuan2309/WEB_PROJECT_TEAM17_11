@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title th:text="${productId == null} ? 'Thêm sản phẩm' : 'Sửa sản phẩm'">Sản phẩm</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0" th:text="${productId == null} ? 'Thêm sản phẩm' : 'Sửa sản phẩm'">Sản phẩm</h1>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor/products}">Danh sách sản phẩm</a>
+    </div>
+
+    <div class="alert alert-danger" th:if="${formError != null}" th:text="${formError}"></div>
+    <div class="alert alert-warning" th:if="${uploadError != null}" th:text="${uploadError}"></div>
+
+    <form method="post" enctype="multipart/form-data"
+          th:action="${productId == null} ? @{/vendor/products} : @{/vendor/products/{id}(id=${productId})}"
+          th:object="${form}" class="card card-body shadow-sm">
+
+        <div class="row g-3">
+
+            <div class="col-md-8">
+                <label class="form-label" for="name">Tên sản phẩm <span class="text-danger">*</span></label>
+                <input id="name" type="text" class="form-control"
+                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                       th:field="*{name}" maxlength="200"/>
+                <div class="invalid-feedback" th:errors="*{name}"></div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="basePrice">Giá cơ sở (đ) <span class="text-danger">*</span></label>
+                <input id="basePrice" type="number" min="0" step="1000" class="form-control"
+                       th:classappend="${#fields.hasErrors('basePrice')} ? 'is-invalid'"
+                       th:field="*{basePrice}"/>
+                <div class="invalid-feedback" th:errors="*{basePrice}"></div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="categoryId">Danh mục</label>
+                <select id="categoryId" class="form-select"
+                        th:classappend="${#fields.hasErrors('categoryId')} ? 'is-invalid'"
+                        th:field="*{categoryId}">
+                    <option value="">-- Không chọn --</option>
+                    <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}">Danh mục</option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{categoryId}"></div>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check form-switch mt-4">
+                    <input class="form-check-input" type="checkbox" id="active" th:field="*{active}"/>
+                    <label class="form-check-label" for="active">Đang bán (khách nhìn thấy sản phẩm)</label>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label" for="description">Mô tả</label>
+                <textarea id="description" class="form-control" rows="4" maxlength="2000"
+                          th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                          th:field="*{description}"></textarea>
+                <div class="invalid-feedback" th:errors="*{description}"></div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="image">Ảnh sản phẩm</label>
+                <input id="image" type="file" name="image" class="form-control"
+                       accept="image/jpeg,image/png,image/webp,image/gif"
+                       data-preview-target="#imagePreview"/>
+                <div class="form-text">JPEG, PNG, WEBP, GIF, tối đa 5MB. Để trống nếu giữ ảnh hiện tại.</div>
+            </div>
+
+            <div class="col-md-6">
+                <img id="imagePreview"
+                     th:src="${product != null and product.imageUrl != null} ? ${product.imageUrl} : ''"
+                     th:classappend="${product == null or product.imageUrl == null} ? 'd-none'"
+                     alt="Ảnh sản phẩm" class="rounded border"
+                     style="width:160px;height:120px;object-fit:cover"/>
+            </div>
+
+        </div>
+
+        <hr class="my-4"/>
+
+        <h2 class="h6 text-uppercase text-muted mb-3">Size và tồn kho</h2>
+        <p class="text-muted small">
+            Ví dụ: Size S (+0đ), Size M (+5.000đ), Size L (+10.000đ).
+            Bỏ trống tên size nếu không dùng dòng đó.
+        </p>
+
+        <div class="table-responsive">
+            <table class="table align-middle" id="variantTable">
+                <thead>
+                <tr>
+                    <th>Tên size</th>
+                    <th style="width:200px">Phụ thu (đ)</th>
+                    <th style="width:160px">Tồn kho</th>
+                    <th style="width:80px"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="v, st : *{variants}">
+                    <td>
+                        <input type="hidden" th:field="*{variants[__${st.index}__].id}"/>
+                        <input type="text" class="form-control" maxlength="50"
+                               th:field="*{variants[__${st.index}__].name}" placeholder="Size M"/>
+                    </td>
+                    <td>
+                        <input type="number" min="0" step="1000" class="form-control"
+                               th:field="*{variants[__${st.index}__].extraPrice}"/>
+                    </td>
+                    <td>
+                        <input type="number" min="0" step="1" class="form-control"
+                               th:field="*{variants[__${st.index}__].stock}"/>
+                    </td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-variant"
+                                title="Bỏ size này">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="addVariant">
+                <i class="bi bi-plus-lg"></i> Thêm size
+            </button>
+        </div>
+
+        <hr class="my-4"/>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Lưu sản phẩm
+            </button>
+            <a class="btn btn-outline-secondary" th:href="@{/vendor/products}">Hủy</a>
+        </div>
+    </form>
+
+    <!-- Dòng size mẫu cho JavaScript nhân bản; __INDEX__ sẽ được thay bằng số thứ tự mới -->
+    <template id="variantRowTemplate">
+        <tr>
+            <td>
+                <input type="hidden" name="variants[__INDEX__].id"/>
+                <input type="text" class="form-control" maxlength="50" name="variants[__INDEX__].name"
+                       id="variants__INDEX__.name" placeholder="Size M"/>
+            </td>
+            <td>
+                <input type="number" min="0" step="1000" class="form-control"
+                       name="variants[__INDEX__].extraPrice" id="variants__INDEX__.extraPrice" value="0"/>
+            </td>
+            <td>
+                <input type="number" min="0" step="1" class="form-control"
+                       name="variants[__INDEX__].stock" id="variants__INDEX__.stock" value="0"/>
+            </td>
+            <td class="text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-variant">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </td>
+        </tr>
+    </template>
+
+</div>
+
+<th:block layout:fragment="scripts">
+    <script th:src="@{/js/vendor.js}"></script>
+</th:block>
+
+</body>
+</html>

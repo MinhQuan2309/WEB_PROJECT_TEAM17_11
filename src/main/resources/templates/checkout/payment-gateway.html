@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title th:text="'Cổng thanh toán ' + ${method} + ' Sandbox'">Cổng thanh toán</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow">
+                <div class="card-header py-3 text-white text-center"
+                     th:classappend="${method == 'MOMO'} ? 'bg-danger' : 'bg-primary'">
+                    <h1 class="h5 fw-bold mb-0">
+                        <i class="bi bi-shield-lock-fill me-1"></i>
+                        CỔNG THANH TOÁN <span th:text="${method}">VNPAY</span> SANDBOX
+                    </h1>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <p class="text-muted small mb-3">
+                        Môi trường thử nghiệm thanh toán trực tuyến dành cho đồ án UTETra
+                    </p>
+                    <div class="p-3 rounded-3 bg-light border mb-4 text-start">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Mã đơn hàng:</span>
+                            <strong th:text="${codes}">UTE...</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Phương thức:</span>
+                            <span class="badge bg-dark" th:text="${method}">VNPAY</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <span class="text-muted">Số tiền thanh toán:</span>
+                            <span class="h4 fw-bold text-danger mb-0"
+                                  th:text="${#numbers.formatInteger(totalPay, 0, 'POINT')} + ' đ'">0 đ</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <form th:action="@{/checkout/payment-gateway/callback}" method="post">
+                            <input type="hidden" name="codes" th:value="${codes}"/>
+                            <input type="hidden" name="method" th:value="${method}"/>
+                            <input type="hidden" name="success" value="true"/>
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                <i class="bi bi-check-circle-fill me-1"></i> Xác nhận Thanh toán Thành công (00)
+                            </button>
+                        </form>
+
+                        <form th:action="@{/checkout/payment-gateway/callback}" method="post">
+                            <input type="hidden" name="codes" th:value="${codes}"/>
+                            <input type="hidden" name="method" th:value="${method}"/>
+                            <input type="hidden" name="success" value="false"/>
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="bi bi-x-circle me-1"></i> Giả lập Hủy giao dịch / Thất bại (24)
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

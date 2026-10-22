@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Đặt hàng thành công</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm text-center p-4 mb-4">
+                <div class="card-body">
+                    <i class="bi bi-bag-check-fill text-success display-3 d-block mb-3"></i>
+                    <h1 class="h4 fw-bold mb-2">Cảm ơn bạn đã đặt trà sữa tại UTETra!</h1>
+                    <p class="text-muted mb-4">
+                        Đơn hàng của bạn đã được chuyển tới cửa hàng để chuẩn bị pha chế.
+                        Bạn có thể theo dõi trạng thái đơn hàng theo thời gian thực tại mục Lịch sử mua hàng.
+                    </p>
+
+                    <div class="text-start border rounded-3 p-3 bg-light mb-4" th:each="o : ${orders}">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="fw-bold">Mã đơn: <span class="text-primary" th:text="${o.code}">UTE...</span></span>
+                                <span class="mx-2">|</span>
+                                <span class="small text-muted" th:text="${o.shop.name}">Shop</span>
+                            </div>
+                            <span class="badge bg-warning text-dark" th:text="${o.status.label}">Đơn hàng mới</span>
+                        </div>
+                        <div class="small text-secondary mb-1">
+                            Người nhận: <strong th:text="${o.receiverName}"></strong> (<span th:text="${o.receiverPhone}"></span>)
+                            - <span th:text="${o.shippingAddress}"></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+                            <span class="small">
+                                Thanh toán: <strong th:text="${o.paymentMethod.label}">COD</strong>
+                                (<span th:text="${o.paymentStatus}">PENDING</span>)
+                            </span>
+                            <span class="fw-bold text-danger"
+                                  th:text="${#numbers.formatInteger(o.total, 0, 'POINT')} + ' đ'">0 đ</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a th:href="@{/orders}" class="btn btn-primary">
+                            <i class="bi bi-receipt me-1"></i> Xem lịch sử đơn hàng
+                        </a>
+                        <a th:href="@{/products}" class="btn btn-outline-secondary">
+                            <i class="bi bi-cup-straw me-1"></i> Tiếp tục mua sắm
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
