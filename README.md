@@ -256,8 +256,24 @@ Het han sau: 5 phut
 
 Nho vay ca nhom thu duoc luong dang ky va quen mat khau ngay. Khi nop bai thi dien
 App Password cua Gmail vao la gui email that, khong phai sua code.
-- [ ] Tuan 3: CRUD danh muc
-- [ ] Tuan 4: quan ly user, chiet khau app, khuyen mai san, nha van chuyen (`module/admin`, `module/manager`)
+- [x] CRUD danh muc
+- [x] Quan ly user, chiet khau app, khuyen mai san, nha van chuyen (`module/admin`)
+- [x] Hoan thien khu Manager: dashboard, chu shop, san pham theo pham vi (`module/manager`)
+- [x] CI tu chay test tren moi Pull Request (`.github/workflows/ci.yml`)
+
+#### Pham vi cua Manager
+
+De tai ghi Manager co cung danh sach chuc nang voi Admin nhung "quan ly tung cua hang".
+Nhom chot cach hieu:
+
+| Viec | Ai lam |
+|---|---|
+| Danh muc, nha van chuyen, khuyen mai cua san | chi Admin, vi la viec toan san |
+| Shop, chu shop, san pham cua shop, chiet khau | Manager, trong pham vi shop minh phu trach |
+| Khoa tai khoan, doi vai tro | chi Admin |
+
+Manager nhan shop bang cach duyet mot shop dang cho ma chua ai nhan, hoac duoc Admin
+phan cong o `/admin/shops`.
 
 ### Luu y ve quan he LAZY trong template
 

@@ -1,0 +1,37 @@
+name: CI
+
+# Chay test tu dong moi khi co Pull Request hoac co nguoi day code len
+# develop / main. PR nao build hong se hien dau X do, khong ai merge nham duoc.
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  test:
+    name: Build va chay test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Lay code ve
+        uses: actions/checkout@v4
+
+      - name: Cai JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Chay toan bo test
+        # Test dung H2 trong bo nho nen khong can SQL Server tren may chay CI.
+        run: ./mvnw -B --no-transfer-progress clean test
+
+      - name: Luu ket qua test khi that bai
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ket-qua-test
+          path: target/surefire-reports/
+          retention-days: 7

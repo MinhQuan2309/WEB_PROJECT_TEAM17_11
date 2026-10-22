@@ -40,6 +40,16 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     /** Nha van chuyen da duoc dung trong don thi khong cho xoa. */
     long countByCarrier(Carrier carrier);
 
+    // ===== Them cho khu Manager (Quan) =====
+
+    long countByShopIn(List<Shop> shops);
+
+    @Query("""
+            select coalesce(sum(o.total), 0) from Order o
+            where o.shop in :shops and o.status = com.utetra.entity.OrderStatus.DELIVERED
+            """)
+    BigDecimal revenueOfShops(@Param("shops") List<Shop> shops);
+
     // ===== Them cho module vendor / shipper (Thien) =====
 
     long countByShop(Shop shop);
