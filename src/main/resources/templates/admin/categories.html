@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Quản lý danh mục</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <h1 class="h4 mb-1">Quản lý danh mục</h1>
+            <p class="text-muted mb-0 small">Danh mục hai cấp. Đường dẫn (slug) sinh tự động từ tên.</p>
+        </div>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/admin}">Về bảng điều khiển</a>
+    </div>
+
+    <div class="alert alert-success py-2" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger py-2" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h6 mb-3">Thêm danh mục</h2>
+                    <form method="post" th:action="@{/admin/categories/save}">
+                        <div class="mb-2">
+                            <label class="form-label small" for="name">Tên danh mục *</label>
+                            <input class="form-control form-control-sm" id="name" name="name" required/>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small" for="parentId">Danh mục cha</label>
+                            <select class="form-select form-select-sm" id="parentId" name="parentId">
+                                <option value="">— là danh mục gốc —</option>
+                                <option th:each="r : ${roots}" th:value="${r.id}" th:text="${r.name}">cha</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small" for="imageUrl">Ảnh (URL)</label>
+                            <input class="form-control form-control-sm" id="imageUrl" name="imageUrl"/>
+                        </div>
+                        <button class="btn btn-sm btn-primary w-100" type="submit">Thêm danh mục</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                    <tr>
+                        <th style="width:3rem">#</th>
+                        <th>Tên</th>
+                        <th>Đường dẫn</th>
+                        <th>Cha</th>
+                        <th>Trạng thái</th>
+                        <th style="width:11rem">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c : ${categories}">
+                        <td th:text="${c.id}">1</td>
+                        <td>
+                            <form class="d-flex gap-1" method="post" th:action="@{/admin/categories/save}">
+                                <input type="hidden" name="id" th:value="${c.id}"/>
+                                <input type="hidden" name="parentId"
+                                       th:value="${c.parent != null} ? ${c.parent.id} : ''"/>
+                                <input class="form-control form-control-sm" name="name" th:value="${c.name}"/>
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">Lưu</button>
+                            </form>
+                        </td>
+                        <td><code th:text="${c.slug}">slug</code></td>
+                        <td th:text="${c.parent != null} ? ${c.parent.name} : '—'">—</td>
+                        <td>
+                            <span class="badge" th:classappend="${c.active} ? 'text-bg-success' : 'text-bg-secondary'"
+                                  th:text="${c.active} ? 'Đang bật' : 'Đã tắt'">tt</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <form method="post" th:action="@{'/admin/categories/' + ${c.id} + '/toggle'}">
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit"
+                                            th:text="${c.active} ? 'Tắt' : 'Bật'">Tắt</button>
+                                </form>
+                                <form method="post" th:action="@{'/admin/categories/' + ${c.id} + '/delete'}">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Xoá</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+</body>
+</html>

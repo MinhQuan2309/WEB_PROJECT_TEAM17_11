@@ -55,4 +55,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     long countByShop(Shop shop);
 
     long countByShopAndActiveTrue(Shop shop);
+
+    // ===== Them cho man quan tri danh muc (Quan) =====
+
+    /** Danh muc dang co san pham thi khong cho xoa. */
+    long countByCategory(Category category);
 }

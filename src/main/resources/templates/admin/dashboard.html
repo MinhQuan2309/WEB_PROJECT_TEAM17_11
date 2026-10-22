@@ -53,9 +53,11 @@
         </a>
     </div>
 
-    <div class="alert alert-secondary">
-        Việc còn lại của khu vực này: quản lý người dùng, duyệt sản phẩm từng shop,
-        quản lý danh mục, chiết khấu app, chương trình khuyến mãi, nhà vận chuyển.
+    <div class="row row-cols-2 row-cols-md-4 g-2">
+        <div class="col"><a class="btn btn-outline-primary w-100" th:href="@{/admin/users}">Người dùng</a></div>
+        <div class="col"><a class="btn btn-outline-primary w-100" th:href="@{/admin/categories}">Danh mục</a></div>
+        <div class="col"><a class="btn btn-outline-primary w-100" th:href="@{/admin/carriers}">Nhà vận chuyển</a></div>
+        <div class="col"><a class="btn btn-outline-primary w-100" th:href="@{/admin/promotions}">Khuyến mãi sàn</a></div>
     </div>
 
 </div>

@@ -26,4 +26,12 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByParentIsNullAndActiveTrue();
 
     List<Category> findByParentAndActiveTrue(Category parent);
+
+    // ===== Them cho man quan tri danh muc (Quan) =====
+
+    List<Category> findAllByOrderByIdAsc();
+
+    List<Category> findByParentIsNullOrderByIdAsc();
+
+    long countByParent(Category parent);
 }
