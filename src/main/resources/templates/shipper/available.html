@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Đơn chờ nhận</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h4 mb-0">Đơn chờ nhận</h1>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/shipper/orders}">Đơn của tôi</a>
+    </div>
+
+    <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+    <div class="alert alert-danger" th:if="${formError != null}" th:text="${formError}"></div>
+
+    <p class="text-muted">
+        Đây là các đơn shop đã xác nhận nhưng chưa có shipper nào nhận.
+        Nhận đơn xong thì đơn chuyển vào mục "Đơn của tôi".
+    </p>
+
+    <div class="table-responsive">
+        <table class="table align-middle bg-white">
+            <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Shop lấy hàng</th>
+                <th>Giao đến</th>
+                <th class="text-end">Thu hộ</th>
+                <th class="text-end"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="o : ${orders.content}">
+                <td>
+                    <div class="fw-semibold" th:text="${o.code}">DH0001</div>
+                    <div class="small text-muted"
+                         th:text="${#temporals.format(o.createdAt, 'dd/MM HH:mm')}">ngày</div>
+                </td>
+                <td>
+                    <div th:text="${o.shop.name}">Shop</div>
+                    <small class="text-muted" th:text="${o.shop.address}">Địa chỉ shop</small>
+                </td>
+                <td>
+                    <div th:text="${o.receiverName}">Tên</div>
+                    <small class="text-muted" th:text="${o.shippingAddress}">Địa chỉ</small>
+                </td>
+                <td class="text-end">
+                    <span th:if="${o.paymentMethod.name() == 'COD'}"
+                          th:text="${#numbers.formatInteger(o.total, 0, 'POINT')} + ' đ'">0 đ</span>
+                    <span class="text-muted" th:if="${o.paymentMethod.name() != 'COD'}">đã trả trước</span>
+                </td>
+                <td class="text-end">
+                    <form th:action="@{'/shipper/available/' + ${o.id} + '/claim'}" method="post">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="bi bi-hand-index-thumb"></i> Nhận đơn
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${orders.isEmpty()}">
+                <td colspan="5" class="text-center text-muted py-4">
+                    Hiện chưa có đơn nào chờ nhận.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pager(${orders}, '/shipper/available')}"></div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Đơn của tôi</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <!-- Thông báo real-time (tuần 4): đơn được phân công / đổi trạng thái hiện ngay -->
+    <div id="realtimeToasts" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h4 mb-0">Đơn của tôi</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-primary" th:href="@{/shipper/available}">
+                <i class="bi bi-inbox"></i> Đơn chờ nhận
+            </a>
+            <a class="btn btn-sm btn-outline-secondary" th:href="@{/shipper}">Về trang chính</a>
+        </div>
+    </div>
+
+    <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+    <div class="alert alert-danger" th:if="${formError != null}" th:text="${formError}"></div>
+
+    <ul class="nav nav-pills flex-wrap mb-3">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${statusFilter == null} ? 'active'"
+               th:href="@{/shipper/orders}">Tất cả</a>
+        </li>
+        <li class="nav-item" th:each="s : ${statuses}">
+            <a class="nav-link" th:classappend="${statusFilter != null and statusFilter == s} ? 'active'"
+               th:href="@{/shipper/orders(status=${s.name()})}">
+                <span th:text="${s.label}">Trạng thái</span>
+                <span class="badge text-bg-light" th:text="${counts.get(s)}">0</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="table-responsive">
+        <table class="table align-middle bg-white" id="shipperOrdersTable">
+            <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Người nhận</th>
+                <th class="text-end">Thu hộ</th>
+                <th class="text-center">Trạng thái</th>
+                <th style="width:320px" class="text-end">Cập nhật</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="o : ${orders.content}">
+                <td>
+                    <a class="fw-semibold" th:href="@{'/shipper/orders/' + ${o.id}}"
+                       th:text="${o.code}">DH0001</a>
+                    <div class="small text-muted" th:text="${o.shop.name}">Shop</div>
+                </td>
+                <td>
+                    <div th:text="${o.receiverName}">Tên</div>
+                    <small class="text-muted" th:text="${o.receiverPhone}">SĐT</small>
+                </td>
+                <td class="text-end">
+                    <span th:if="${o.paymentMethod.name() == 'COD'}"
+                          th:text="${#numbers.formatInteger(o.total, 0, 'POINT')} + ' đ'">0 đ</span>
+                    <span class="text-muted" th:if="${o.paymentMethod.name() != 'COD'}">đã trả trước</span>
+                </td>
+                <td class="text-center">
+                    <span class="badge"
+                          th:classappend="${o.status.name() == 'DELIVERED'} ? 'text-bg-success'
+                                        : (${o.status.name() == 'RETURNED_REFUNDED' or o.status.name() == 'CANCELLED'} ? 'text-bg-danger'
+                                        : (${o.status.name() == 'SHIPPING'} ? 'text-bg-primary' : 'text-bg-warning'))"
+                          th:text="${o.status.label}">Trạng thái</span>
+                </td>
+                <td>
+                    <div class="d-flex flex-wrap gap-1 justify-content-end">
+                        <form th:each="next : ${nextStates.get(o.status)}"
+                              th:if="${next.name() != 'RETURNED_REFUNDED'}"
+                              th:action="@{'/shipper/orders/' + ${o.id} + '/status'}" method="post">
+                            <input type="hidden" name="returnTo" value="list"/>
+                            <input type="hidden" name="status" th:value="${next.name()}"/>
+                            <button type="submit" class="btn btn-sm btn-primary"
+                                    th:text="${next.name() == 'PICKED_UP'} ? 'Đã lấy hàng'
+                                             : (${next.name() == 'SHIPPING'} ? 'Bắt đầu giao' : 'Giao thành công')">
+                                Cập nhật
+                            </button>
+                        </form>
+                    </div>
+
+                    <div th:if="${o.status.name() == 'SHIPPING'}"
+                         class="mt-1">
+                        <button class="btn btn-sm btn-outline-danger w-100" type="button"
+                                data-bs-toggle="collapse" th:attr="data-bs-target='#fail-' + ${o.id}">
+                            Báo giao thất bại
+                        </button>
+                        <div class="collapse mt-1" th:id="'fail-' + ${o.id}">
+                            <form th:action="@{'/shipper/orders/' + ${o.id} + '/status'}" method="post"
+                                  class="input-group input-group-sm">
+                                <input type="hidden" name="returnTo" value="list"/>
+                                <input type="hidden" name="status" value="RETURNED_REFUNDED"/>
+                                <input class="form-control" name="failedReason" maxlength="200"
+                                       placeholder="Lý do: khách không nghe máy..." required/>
+                                <button class="btn btn-danger" type="submit">Gửi</button>
+                            </form>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${orders.isEmpty()}">
+                <td colspan="5" class="text-center text-muted py-4">
+                    Chưa có đơn nào ở mục này.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pager(${orders}, '/shipper/orders')}"></div>
+
+</div>
+
+<th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+        window.utetraRealtime = { shipper: true };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script th:src="@{/js/order-realtime.js}"></script>
+</th:block>
+
+</body>
+</html>
