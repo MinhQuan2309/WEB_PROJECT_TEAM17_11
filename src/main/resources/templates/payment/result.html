@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Kết quả thanh toán</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <h1 class="h4 mb-3">Kết quả thanh toán</h1>
+
+    <div class="alert alert-success" th:if="${success != null and success}" th:text="${message}">
+        Thanh toán thành công
+    </div>
+    <div class="alert alert-danger" th:if="${success != null and !success}" th:text="${message}">
+        Thanh toán chưa thành công
+    </div>
+    <div class="alert alert-secondary" th:if="${success == null and message != null}" th:text="${message}"></div>
+
+    <div class="card" th:if="${order != null}">
+        <div class="card-body">
+            <h2 class="h5">Đơn <span th:text="${order.code}">DH0001</span></h2>
+            <p class="mb-1">
+                Trạng thái đơn:
+                <span class="badge text-bg-info" th:text="${order.status.label}">Trạng thái</span>
+            </p>
+            <p class="mb-1">
+                Trạng thái thanh toán:
+                <span class="badge"
+                      th:classappend="${order.paymentStatus.name() == 'PAID'} ? 'text-bg-success'
+                                    : (${order.paymentStatus.name() == 'FAILED'} ? 'text-bg-danger' : 'text-bg-light')"
+                      th:text="${order.paymentStatus}">PENDING</span>
+                <span class="text-muted" th:text="'(' + ${order.paymentMethod.label} + ')'">(COD)</span>
+            </p>
+            <p class="mb-1" th:if="${payment != null}">
+                Mã giao dịch:
+                <span th:text="${payment.transactionId != null} ? ${payment.transactionId} : 'chưa có'">-</span>
+            </p>
+            <p class="mb-3 fw-bold">
+                Số tiền:
+                <span th:text="${#numbers.formatInteger(order.total, 0, 'POINT')} + ' đ'">0 đ</span>
+            </p>
+
+            <a class="btn btn-outline-primary" th:href="@{'/payment/checkout/' + ${order.id}}"
+               th:if="${order.paymentStatus.name() != 'PAID'}">Thanh toán lại</a>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

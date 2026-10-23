@@ -60,6 +60,8 @@ public class VendorOrderController {
         model.addAttribute("statusFilter", loc);
         model.addAttribute("counts", vendorOrderService.countByStatus(authentication.getName()));
         model.addAttribute("nextStates", nextStatesMap());
+        // Cho phần thông báo real-time biết đang đứng ở shop nào (tuần 4).
+        model.addAttribute("shopId", vendorOrderService.myShopId(authentication.getName()));
         return "vendor/orders";
     }
 

@@ -74,6 +74,12 @@ public class VendorOrderService {
         return counts;
     }
 
+    /** Ma shop cua tai khoan dang dang nhap (dung cho kenh thong bao real-time). */
+    @Transactional(readOnly = true)
+    public Long myShopId(String username) {
+        return vendorShopService.requireMyShop(username).getId();
+    }
+
     /** Diem kiem tra chu so huu don hang, chan IDOR cho moi thao tac cua Vendor. */
     @Transactional(readOnly = true)
     public Order requireOwnedOrder(String username, Long orderId) {
