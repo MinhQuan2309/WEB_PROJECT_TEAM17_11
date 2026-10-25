@@ -173,6 +173,21 @@ public class ShopModerationService {
         return shopRepository.save(shop);
     }
 
+    /**
+     * Dat phan tram chiet khau san thu tren moi don cua shop.
+     * Admin dat cho moi shop, Manager chi dat duoc cho shop minh quan ly.
+     */
+    @Transactional
+    public Shop setCommissionRate(User actor, Long shopId, java.math.BigDecimal rate) {
+        if (rate == null || rate.compareTo(java.math.BigDecimal.ZERO) < 0
+                || rate.compareTo(new java.math.BigDecimal("100")) > 0) {
+            throw new IllegalStateException("Chiet khau phai nam trong khoang 0 den 100");
+        }
+        Shop shop = requireShopInScope(actor, shopId);
+        shop.setCommissionRate(rate);
+        return shopRepository.save(shop);
+    }
+
     /** Danh sach Manager de Admin chon khi phan cong. */
     @Transactional(readOnly = true)
     public List<User> allManagers() {

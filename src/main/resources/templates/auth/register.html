@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Đăng ký</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h5 mb-3">Tạo tài khoản</h1>
+
+                    <div class="alert alert-success py-2" th:if="${successMessage}" th:text="${successMessage}"></div>
+                    <div class="alert alert-danger py-2" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+                    <div class="alert alert-danger py-2" th:if="${formError}" th:text="${formError}"></div>
+
+                    <form th:action="@{/register}" th:object="${form}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label" for="username">Tên đăng nhập *</label>
+                            <input class="form-control" id="username" th:field="*{username}" required/>
+                            <div class="form-text text-danger" th:if="${#fields.hasErrors('username')}"
+                                 th:errors="*{username}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="fullName">Họ và tên *</label>
+                            <input class="form-control" id="fullName" th:field="*{fullName}" required/>
+                            <div class="form-text text-danger" th:if="${#fields.hasErrors('fullName')}"
+                                 th:errors="*{fullName}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="email">Email *</label>
+                            <input class="form-control" id="email" type="email" th:field="*{email}" required/>
+                            <div class="form-text">Mã OTP kích hoạt sẽ được gửi tới email này.</div>
+                            <div class="form-text text-danger" th:if="${#fields.hasErrors('email')}"
+                                 th:errors="*{email}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="phone">Số điện thoại</label>
+                            <input class="form-control" id="phone" th:field="*{phone}"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="password">Mật khẩu *</label>
+                            <input class="form-control" id="password" type="password" th:field="*{password}" required/>
+                            <div class="form-text text-danger" th:if="${#fields.hasErrors('password')}"
+                                 th:errors="*{password}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="confirmPassword">Nhập lại mật khẩu *</label>
+                            <input class="form-control" id="confirmPassword" type="password"
+                                   th:field="*{confirmPassword}" required/>
+                            <div class="form-text text-danger" th:if="${#fields.hasErrors('confirmPassword')}"
+                                 th:errors="*{confirmPassword}"></div>
+                        </div>
+                        <button class="btn btn-primary w-100" type="submit">Đăng ký</button>
+                    </form>
+
+                    <div class="text-center mt-3 small">
+                        Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

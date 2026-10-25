@@ -147,6 +147,20 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
+            <!--
+                Mockito dung ByteBuddy de tao doi tuong gia. Ban ByteBuddy di kem
+                Spring Boot 3.3 chua ho tro JDK moi (25, 26) nen bao
+                "Mockito cannot mock this class". Bat che do thuc nghiem thi chay duoc.
+                May dung JDK 17 hay 21 khong bi anh huong gi.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

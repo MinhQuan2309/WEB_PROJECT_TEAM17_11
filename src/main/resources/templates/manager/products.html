@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Sản phẩm của các shop phụ trách</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <h1 class="h4 mb-1">Sản phẩm của các shop phụ trách</h1>
+            <p class="text-muted mb-0 small">Ẩn sản phẩm vi phạm. Ẩn rồi thì khách không còn thấy trên trang bán hàng, nhưng Vendor vẫn sửa lại được.</p>
+        </div>
+        <div class="btn-group btn-group-sm">
+            <a class="btn btn-outline-secondary" th:href="@{/manager}">Tổng quan</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/shops}">Kiểm duyệt shop</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/users}">Chủ shop</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/products}">Sản phẩm</a>
+        </div>
+    </div>
+
+    <div class="alert alert-success py-2" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger py-2" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+
+    <p class="text-muted small" th:if="${page.isEmpty()}">Chưa có sản phẩm nào trong phạm vi của bạn.</p>
+
+    <div class="table-responsive" th:unless="${page.isEmpty()}">
+        <table class="table table-sm align-middle">
+            <thead>
+            <tr><th style="width:3rem">#</th><th>Sản phẩm</th><th>Shop</th><th>Danh mục</th>
+                <th>Giá</th><th>Đã bán</th><th>Trạng thái</th><th style="width:9rem">Thao tác</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${page.content}">
+                <td th:text="${p.id}">1</td>
+                <td class="fw-medium" th:text="${p.name}">tên</td>
+                <td th:text="${p.shop != null} ? ${p.shop.name} : '—'">shop</td>
+                <td th:text="${p.category != null} ? ${p.category.name} : '—'">danh mục</td>
+                <td th:text="${#numbers.formatInteger(p.basePrice, 0, 'POINT')} + ' đ'">0 đ</td>
+                <td th:text="${p.soldCount}">0</td>
+                <td>
+                    <span class="badge" th:classappend="${p.active} ? 'text-bg-success' : 'text-bg-secondary'"
+                          th:text="${p.active} ? 'Đang bán' : 'Đã ẩn'">tt</span>
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <form method="post" th:action="@{'/manager/products/' + ${p.id} + '/toggle'}">
+                            <button class="btn btn-sm"
+                                    th:classappend="${p.active} ? 'btn-outline-danger' : 'btn-outline-success'"
+                                    th:text="${p.active} ? 'Ẩn' : 'Hiện'" type="submit">Ẩn</button>
+                        </form>
+                        <a class="btn btn-sm btn-outline-primary" th:href="@{'/products/' + ${p.id}}"
+                           target="_blank">Xem</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/pagination :: pager(${page}, '/manager/products')}"></div>
+
+
+</div>
+
+</body>
+</html>

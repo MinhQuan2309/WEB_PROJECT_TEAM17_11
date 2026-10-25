@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Chủ shop trong phạm vi</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <h1 class="h4 mb-1">Chủ shop trong phạm vi</h1>
+            <p class="text-muted mb-0 small">Danh sách chủ các shop bạn phụ trách. Việc khoá tài khoản hay đổi vai trò thuộc về Admin.</p>
+        </div>
+        <div class="btn-group btn-group-sm">
+            <a class="btn btn-outline-secondary" th:href="@{/manager}">Tổng quan</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/shops}">Kiểm duyệt shop</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/users}">Chủ shop</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/products}">Sản phẩm</a>
+        </div>
+    </div>
+
+    <div class="alert alert-success py-2" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger py-2" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+
+    <p class="text-muted small" th:if="${owners.isEmpty()}">
+        Chưa có shop nào được phân công cho bạn nên chưa có chủ shop để hiển thị.
+    </p>
+
+    <div class="table-responsive" th:unless="${owners.isEmpty()}">
+        <table class="table table-sm align-middle">
+            <thead>
+            <tr><th style="width:3rem">#</th><th>Tài khoản</th><th>Liên hệ</th>
+                <th>Vai trò</th><th>Trạng thái</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${owners}">
+                <td th:text="${u.id}">1</td>
+                <td>
+                    <div class="fw-medium" th:text="${u.username}">tên</div>
+                    <small class="text-muted" th:text="${u.fullName}">họ tên</small>
+                </td>
+                <td>
+                    <small class="d-block" th:text="${u.email}">email</small>
+                    <small class="text-muted" th:text="${u.phone}">sđt</small>
+                </td>
+                <td th:text="${u.role.label}">vai</td>
+                <td>
+                    <span class="badge text-bg-success" th:if="${u.enabled and !u.locked}">Hoạt động</span>
+                    <span class="badge text-bg-warning" th:if="${!u.enabled}">Chưa kích hoạt</span>
+                    <span class="badge text-bg-danger" th:if="${u.locked}">Đã khoá</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+</body>
+</html>

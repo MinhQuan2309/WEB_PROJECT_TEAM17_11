@@ -17,4 +17,10 @@ import java.util.Optional;
 public interface CarrierRepository extends JpaRepository<Carrier, Long> {
 
     List<Carrier> findByActiveTrue();
+
+    // ===== Them cho man quan tri nha van chuyen (Quan) =====
+
+    List<Carrier> findAllByOrderByIdAsc();
+
+    boolean existsByNameIgnoreCase(String name);
 }

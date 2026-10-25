@@ -51,6 +51,7 @@
                     <th>Shop</th>
                     <th>Chủ shop</th>
                     <th>Trạng thái</th>
+                    <th style="width:12rem">Chiết khấu sàn</th>
                     <th th:if="${canAssignManager}">Người quản lý</th>
                     <th style="width:22rem">Thao tác</th>
                 </tr>
@@ -79,6 +80,19 @@
                                             : (${shop.status.name() == 'PENDING'} ? 'text-bg-warning'
                                             : 'text-bg-secondary')"
                               th:text="${shop.status.label}">Trạng thái</span>
+                    </td>
+
+                    <td>
+                        <form class="d-flex gap-1" method="post"
+                              th:action="@{${basePath} + '/' + ${shop.id} + '/commission'}">
+                            <input type="hidden" name="status"
+                                   th:value="${currentStatus != null} ? ${currentStatus.name()} : ''"/>
+                            <input class="form-control form-control-sm" name="rate" type="number"
+                                   min="0" max="100" step="0.5" th:value="${shop.commissionRate}"
+                                   style="max-width:5.5rem"/>
+                            <span class="align-self-center small text-muted">%</span>
+                            <button class="btn btn-sm btn-outline-secondary" type="submit">Lưu</button>
+                        </form>
                     </td>
 
                     <td th:if="${canAssignManager}">
