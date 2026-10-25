@@ -9,17 +9,90 @@
 <body>
 
 <div layout:fragment="content">
-    <h1 class="h4 mb-1">Khu vực quản lý</h1>
-    <p class="text-muted">Chỉ thấy dữ liệu các shop được phân công (Shop.manager). Phần của Quân, tuần 4.</p>
 
-    <div class="mb-4">
-        <a class="btn btn-primary" th:href="@{/manager/shops}">Kiểm duyệt shop</a>
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <h1 class="h4 mb-1">Khu vực quản lý</h1>
+            <p class="text-muted mb-0 small">Số liệu chỉ tính trên các shop bạn được phân công phụ trách.</p>
+        </div>
+        <div class="btn-group btn-group-sm">
+            <a class="btn btn-outline-secondary" th:href="@{/manager}">Tổng quan</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/shops}">Kiểm duyệt shop</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/users}">Chủ shop</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/products}">Sản phẩm</a>
+        </div>
     </div>
 
-    <div class="alert alert-secondary mb-0">
-        Dùng chung bộ màn hình với Admin nhưng giới hạn phạm vi theo
-        <code>ShopRepository.findByManager(...)</code>.
+    <div class="alert alert-success py-2" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger py-2" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+
+    <div class="row row-cols-2 row-cols-md-5 g-3 mb-4">
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h3 mb-0" th:text="${summary.shopCount}">0</div>
+                <small class="text-muted">Shop phụ trách</small>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h3 mb-0" th:text="${summary.ownerCount}">0</div>
+                <small class="text-muted">Chủ shop</small>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h3 mb-0" th:text="${summary.productCount}">0</div>
+                <small class="text-muted">Sản phẩm</small>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h3 mb-0" th:text="${summary.orderCount}">0</div>
+                <small class="text-muted">Đơn hàng</small>
+            </div></div>
+        </div>
+        <div class="col">
+            <div class="card text-center"><div class="card-body">
+                <div class="h5 mb-0"
+                     th:text="${#numbers.formatInteger(summary.revenue, 0, 'POINT')} + ' đ'">0 đ</div>
+                <small class="text-muted">Doanh thu đã giao</small>
+            </div></div>
+        </div>
     </div>
+
+    <div class="alert alert-warning py-2" th:if="${shops.isEmpty()}">
+        Bạn chưa được phân công phụ trách shop nào. Vào mục
+        <a th:href="@{/manager/shops}">Kiểm duyệt shop</a> để nhận shop đang chờ duyệt,
+        hoặc nhờ Admin phân công.
+    </div>
+
+    <div class="table-responsive" th:unless="${shops.isEmpty()}">
+        <h2 class="h6 mb-2">Shop đang phụ trách</h2>
+        <table class="table table-sm align-middle">
+            <thead>
+            <tr><th style="width:3rem">#</th><th>Shop</th><th>Chủ shop</th>
+                <th>Trạng thái</th><th>Chiết khấu</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${shops}">
+                <td th:text="${s.id}">1</td>
+                <td>
+                    <div class="fw-medium" th:text="${s.name}">tên</div>
+                    <small class="text-muted" th:text="${s.address}">địa chỉ</small>
+                </td>
+                <td th:text="${s.owner != null} ? ${s.owner.fullName} : '—'">chủ</td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${s.status.name() == 'ACTIVE'} ? 'text-bg-success' : 'text-bg-secondary'"
+                          th:text="${s.status.label}">tt</span>
+                </td>
+                <td th:text="${s.commissionRate} + ' %'">0 %</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
 
 </div>
 

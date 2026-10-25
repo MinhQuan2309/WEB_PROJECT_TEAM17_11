@@ -18,6 +18,9 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     /** Khuyen mai cua san: shop = null. */
     List<Promotion> findByShopIsNullAndActiveTrue();
 
+    /** Toan bo khuyen mai cua san, ke ca dang tat (man quan tri). */
+    List<Promotion> findByShopIsNullOrderByIdDesc();
+
     List<Promotion> findByProductAndActiveTrue(Product product);
 
     /** Cac chuong trinh dang chay tai thoi diem now. */

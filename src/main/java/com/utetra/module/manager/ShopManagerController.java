@@ -82,6 +82,16 @@ public class ShopManagerController extends ShopModerationControllerSupport {
                 "Da mo lai shop.", ra);
     }
 
+    @PostMapping("/{id}/commission")
+    public String commission(@PathVariable Long id,
+                             @RequestParam java.math.BigDecimal rate,
+                             @RequestParam(required = false) String status,
+                             Principal principal, RedirectAttributes ra) {
+        return act(principal.getName(), status,
+                actor -> moderationService.setCommissionRate(actor, id, rate),
+                "Da cap nhat chiet khau cua shop.", ra);
+    }
+
     @PostMapping("/{id}/reopen")
     public String reopen(@PathVariable Long id,
                          @RequestParam(required = false) String status,

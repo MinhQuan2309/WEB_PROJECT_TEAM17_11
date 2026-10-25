@@ -55,4 +55,17 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     long countByShop(Shop shop);
 
     long countByShopAndActiveTrue(Shop shop);
+
+    // ===== Them cho man quan tri danh muc (Quan) =====
+
+    /** Danh muc dang co san pham thi khong cho xoa. */
+    long countByCategory(Category category);
+
+    // ===== Them cho khu Manager (Quan) =====
+
+    /** San pham cua cac shop ma mot Manager phu trach. */
+    @EntityGraph(attributePaths = {"shop", "category"})
+    Page<Product> findByShopInOrderByIdDesc(List<Shop> shops, Pageable pageable);
+
+    long countByShopIn(List<Shop> shops);
 }

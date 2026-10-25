@@ -124,6 +124,18 @@ Chay bang dong lenh thi khong can buoc 3:
    ```sql
    CREATE DATABASE utetra COLLATE Vietnamese_CI_AS;
    ```
+
+   > **Neu may ban da tao database tu truoc ngay 22/10**: phai XOA roi tao lai.
+   > Luc do Hibernate con tao cot `varchar` (khong Unicode) nen ten tieng Viet
+   > bi luu thanh dau hoi, vi du "Sinh to" thanh "Sinh t?". Tu commit
+   > `fix(jpa): dung nvarchar` thi cot moi duoc tao kieu `nvarchar`.
+   >
+   > Mo SQL Server Management Studio va chay file
+   > [`docs/sql/tao-lai-database.sql`](docs/sql/tao-lai-database.sql),
+   > sau do chay lai app de `DataSeeder` tao lai du lieu mau.
+   >
+   > Muon kiem tra da dung chua thi chay tiep
+   > [`docs/sql/kiem-tra-unicode.sql`](docs/sql/kiem-tra-unicode.sql).
 2. Copy cau hinh rieng va dien mat khau:
 
    ```bash
@@ -226,10 +238,42 @@ chuyen REJECTED -> PENDING sau khi sua thong tin, khoi phai nho Admin mo ho.
 
 ### Con lai cua Quan
 
-- [ ] Tuan 2: dang ky + OTP email, kich hoat tai khoan, quen mat khau, dat lai mat khau (`module/auth`)
-- [ ] Tuan 2: `POST /api/auth/login` tra JWT
-- [ ] Tuan 3: CRUD danh muc
-- [ ] Tuan 4: quan ly user, chiet khau app, khuyen mai san, nha van chuyen (`module/admin`, `module/manager`)
+- [x] Dang ky + OTP email, kich hoat tai khoan, quen mat khau, dat lai mat khau (`module/auth`)
+- [x] `POST /api/auth/login` tra JWT
+
+#### Chay thu OTP khong can Gmail
+
+Chua dien `spring.mail.username` trong `application-local.properties` thi he thong
+KHONG gui mail that, ma in ma OTP ra Console cua ung dung:
+
+```
+================== OTP (CHE DO THU NGHIEM) ==================
+Email nhan : nguoidung@example.com
+MA OTP     : 965431
+Het han sau: 5 phut
+=============================================================
+```
+
+Nho vay ca nhom thu duoc luong dang ky va quen mat khau ngay. Khi nop bai thi dien
+App Password cua Gmail vao la gui email that, khong phai sua code.
+- [x] CRUD danh muc
+- [x] Quan ly user, chiet khau app, khuyen mai san, nha van chuyen (`module/admin`)
+- [x] Hoan thien khu Manager: dashboard, chu shop, san pham theo pham vi (`module/manager`)
+- [x] CI tu chay test tren moi Pull Request (`.github/workflows/ci.yml`)
+
+#### Pham vi cua Manager
+
+De tai ghi Manager co cung danh sach chuc nang voi Admin nhung "quan ly tung cua hang".
+Nhom chot cach hieu:
+
+| Viec | Ai lam |
+|---|---|
+| Danh muc, nha van chuyen, khuyen mai cua san | chi Admin, vi la viec toan san |
+| Shop, chu shop, san pham cua shop, chiet khau | Manager, trong pham vi shop minh phu trach |
+| Khoa tai khoan, doi vai tro | chi Admin |
+
+Manager nhan shop bang cach duyet mot shop dang cho ma chua ai nhan, hoac duoc Admin
+phan cong o `/admin/shops`.
 
 ### Luu y ve quan he LAZY trong template
 

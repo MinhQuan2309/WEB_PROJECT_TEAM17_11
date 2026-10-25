@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Quản lý nhà vận chuyển</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <h1 class="h4 mb-1">Quản lý nhà vận chuyển</h1>
+            <p class="text-muted mb-0 small">Tên và phí vận chuyển áp cho mỗi đơn. Nhà vận chuyển đã dùng trong đơn chỉ tắt được, không xoá.</p>
+        </div>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/admin}">Về bảng điều khiển</a>
+    </div>
+
+    <div class="alert alert-success py-2" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger py-2" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h6 mb-3">Thêm nhà vận chuyển</h2>
+                    <form method="post" th:action="@{/admin/carriers/save}">
+                        <div class="mb-2">
+                            <label class="form-label small" for="name">Tên *</label>
+                            <input class="form-control form-control-sm" id="name" name="name" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small" for="fee">Phí vận chuyển (đ) *</label>
+                            <input class="form-control form-control-sm" id="fee" name="fee"
+                                   type="number" min="0" step="1000" value="15000" required/>
+                        </div>
+                        <button class="btn btn-sm btn-primary w-100" type="submit">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th style="width:3rem">#</th>
+                    <th>Tên</th>
+                    <th style="width:12rem">Phí</th>
+                    <th>Trạng thái</th>
+                    <th style="width:11rem">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${carriers}">
+                    <td th:text="${c.id}">1</td>
+                    <td>
+                        <form class="d-flex gap-1" method="post" th:action="@{/admin/carriers/save}">
+                            <input type="hidden" name="id" th:value="${c.id}"/>
+                            <input class="form-control form-control-sm" name="name" th:value="${c.name}"/>
+                            <input class="form-control form-control-sm" name="fee" type="number"
+                                   min="0" step="1000" th:value="${c.fee}" style="max-width:8rem"/>
+                            <button class="btn btn-sm btn-outline-secondary" type="submit">Lưu</button>
+                        </form>
+                    </td>
+                    <td th:text="${#numbers.formatInteger(c.fee, 0, 'POINT')} + ' đ'">0 đ</td>
+                    <td>
+                        <span class="badge" th:classappend="${c.active} ? 'text-bg-success' : 'text-bg-secondary'"
+                              th:text="${c.active} ? 'Đang bật' : 'Đã tắt'">tt</span>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <form method="post" th:action="@{'/admin/carriers/' + ${c.id} + '/toggle'}">
+                                <button class="btn btn-sm btn-outline-secondary" type="submit"
+                                        th:text="${c.active} ? 'Tắt' : 'Bật'">Tắt</button>
+                            </form>
+                            <form method="post" th:action="@{'/admin/carriers/' + ${c.id} + '/delete'}">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Xoá</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+</body>
+</html>
