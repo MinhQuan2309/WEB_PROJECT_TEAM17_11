@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title th:text="'Đánh giá: ' + ${product.name}">Đánh giá sản phẩm</title>
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/hai-storefront.css}"/>
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small mb-0">
+            <li class="breadcrumb-item"><a th:href="@{/orders}">Lịch sử mua hàng</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/products/{id}(id=${product.id})}" th:text="${product.name}">Sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Đánh giá &amp; Bình luận</li>
+        </ol>
+    </nav>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h5 fw-bold mb-3 section-header-bar">
+                        Đánh giá &amp; Bình luận sản phẩm đã mua
+                    </h1>
+
+                    <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border mb-4">
+                        <img th:src="${product.imageUrl != null} ? ${product.imageUrl} : 'https://placehold.co/200x150?text=UTETra'"
+                             th:alt="${product.name}"
+                             class="rounded border" style="width: 80px; height: 64px; object-fit: cover;"/>
+                        <div>
+                            <h2 class="h6 fw-bold mb-1" th:text="${product.name}">Tên sản phẩm</h2>
+                            <div class="small text-muted">
+                                <i class="bi bi-shop me-1"></i>
+                                <span th:text="${product.shop.name}">Shop</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/review/submit}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="productId" th:value="${product.id}"/>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Đơn hàng đã giao của bạn</label>
+                            <select name="orderId" class="form-select form-select-sm">
+                                <option th:each="o : ${deliveredOrders}"
+                                        th:value="${o.id}"
+                                        th:selected="${reviewForm.orderId != null and reviewForm.orderId == o.id}"
+                                        th:text="'Mã đơn ' + ${o.code} + ' - Giao ngày ' + (${o.updatedAt != null ? #temporals.format(o.updatedAt, 'dd/MM/yyyy') : ''})">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Chon so sao danh gia (1 - 5 sao) -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold d-block">Mức độ hài lòng (1 – 5 sao) *</label>
+                            <div class="btn-group" role="group" aria-label="Chọn số sao">
+                                <th:block th:each="star : ${ {5, 4, 3, 2, 1} }">
+                                    <input type="radio" class="btn-check" name="rating"
+                                           th:id="'star_' + ${star}" th:value="${star}"
+                                           th:checked="${star == reviewForm.rating}"/>
+                                    <label class="btn btn-outline-warning text-dark fw-semibold"
+                                           th:for="'star_' + ${star}">
+                                        <span th:text="${star}">5</span> <i class="bi bi-star-fill text-warning"></i>
+                                    </label>
+                                </th:block>
+                            </div>
+                        </div>
+
+                        <!-- Noi dung binh luan toi thieu 50 ky tu -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label small fw-semibold mb-0" for="reviewContentInput">
+                                    Nội dung bình luận (tối thiểu 50 ký tự) *
+                                </label>
+                                <small id="reviewCharCounter" class="text-danger fw-semibold">0/50 ký tự tối thiểu</small>
+                            </div>
+                            <textarea id="reviewContentInput" name="content" rows="4"
+                                      minlength="50" maxlength="2000" required
+                                      class="form-control"
+                                      placeholder="Chia sẻ cảm nhận chi tiết của bạn về hương vị trà sữa, độ ngọt, chất lượng topping và tốc độ giao hàng (tối thiểu 50 ký tự)..."
+                                      th:text="${reviewForm.content}"></textarea>
+                            <div class="form-text">
+                                Bình luận phải từ 50 ký tự trở lên (kiểm tra ở cả trình duyệt và máy chủ).
+                            </div>
+                        </div>
+
+                        <!-- Upload anh hoac video qua CloudinaryService -->
+                        <div class="mb-4">
+                            <label class="form-label small fw-semibold">
+                                Đính kèm Ảnh hoặc Video thực tế (tải lên qua Cloudinary)
+                            </label>
+                            <input type="file" name="mediaFile" accept="image/*,video/*"
+                                   class="form-control form-control-sm mb-2"/>
+                            <input type="text" name="mediaUrl" class="form-control form-control-sm"
+                                   placeholder="Hoặc dán trực tiếp URL ảnh/video minh họa (https://...)"
+                                   th:value="${reviewForm.mediaUrl}"/>
+                            <small class="text-muted d-block mt-1" th:if="${!cloudinaryReady}">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Nếu máy chưa điền key Cloudinary trong <code>application-local.properties</code>, bạn có thể dán URL ảnh/video vào ô trên.
+                            </small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" id="reviewSubmitBtn" class="btn btn-primary">
+                                <i class="bi bi-send-fill me-1"></i> Gửi đánh giá &amp; bình luận
+                            </button>
+                            <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-secondary">
+                                Quay lại sản phẩm
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script th:src="@{/js/hai-storefront.js}"></script>
+</th:block>
+</body>
+</html>

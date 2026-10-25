@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Doanh thu shop</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h4 mb-0">Doanh thu shop</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-success"
+               th:href="@{/vendor/revenue/export.csv(from=${report.from}, to=${report.to}, groupBy=${groupBy})}">
+                <i class="bi bi-download"></i> Tải CSV
+            </a>
+            <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor}">Về dashboard</a>
+        </div>
+    </div>
+
+    <!-- Bộ lọc thời gian -->
+    <form class="row g-2 align-items-end mb-3" method="get" th:action="@{/vendor/revenue}">
+        <div class="col-sm-3">
+            <label class="form-label" for="from">Từ ngày</label>
+            <input class="form-control" type="date" id="from" name="from" th:value="${report.from}"/>
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label" for="to">Đến ngày</label>
+            <input class="form-control" type="date" id="to" name="to" th:value="${report.to}"/>
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label" for="groupBy">Gộp theo</label>
+            <select class="form-select" id="groupBy" name="groupBy">
+                <option value="DAY" th:selected="${groupBy == 'DAY'}">Từng ngày</option>
+                <option value="MONTH" th:selected="${groupBy == 'MONTH'}">Từng tháng</option>
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <button class="btn btn-primary w-100" type="submit">Xem báo cáo</button>
+        </div>
+    </form>
+
+    <!-- Chỉ số chính -->
+    <div class="row g-3 mb-3">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Doanh thu (đơn đã giao)</div>
+                    <div class="h4 mb-0"
+                         th:text="${#numbers.formatInteger(report.revenue, 0, 'POINT')} + ' đ'">0 đ</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Hoa hồng sàn</div>
+                    <div class="h4 mb-0 text-danger"
+                         th:text="'-' + ${#numbers.formatInteger(report.commission, 0, 'POINT')} + ' đ'">0 đ</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Thực nhận</div>
+                    <div class="h4 mb-0 text-success"
+                         th:text="${#numbers.formatInteger(report.netRevenue, 0, 'POINT')} + ' đ'">0 đ</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Đơn đã giao / tổng đơn</div>
+                    <div class="h4 mb-0">
+                        <span th:text="${report.deliveredCount}">0</span>
+                        <span class="text-muted fs-6">/ <span th:text="${report.orderCount}">0</span></span>
+                    </div>
+                    <div class="small text-muted">
+                        Huỷ / trả hàng: <span th:text="${report.cancelledCount}">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Doanh thu theo thời gian</div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Món bán chạy</div>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                        <tr>
+                            <th>Món</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Doanh thu</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="p : ${report.topProducts}">
+                            <td th:text="${p.name}">Tên món</td>
+                            <td class="text-center" th:text="${p.quantity}">0</td>
+                            <td class="text-end"
+                                th:text="${#numbers.formatInteger(p.revenue, 0, 'POINT')} + ' đ'">0 đ</td>
+                        </tr>
+                        <tr th:if="${report.topProducts.isEmpty()}">
+                            <td colspan="3" class="text-center text-muted py-3">
+                                Chưa có đơn nào được giao trong khoảng này.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header fw-semibold">Bảng chi tiết</div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead>
+                <tr>
+                    <th th:text="${groupBy == 'MONTH'} ? 'Tháng' : 'Ngày'">Mốc</th>
+                    <th class="text-end">Doanh thu</th>
+                    <th class="text-center">Số đơn đã giao</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${report.series}">
+                    <td th:text="${d.label}">01/01</td>
+                    <td class="text-end"
+                        th:text="${#numbers.formatInteger(d.revenue, 0, 'POINT')} + ' đ'">0 đ</td>
+                    <td class="text-center" th:text="${d.orders}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p class="text-muted small mt-3">
+        Doanh thu tính trên các đơn đã giao trong khoảng đã chọn. Hoa hồng theo tỉ lệ của shop
+        (mặc định 10%), thực nhận = doanh thu - hoa hồng.
+    </p>
+
+</div>
+
+<th:block layout:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script th:inline="javascript">
+        (function () {
+            var host = document.getElementById('revenueChart');
+            if (!host || typeof Chart === 'undefined') {
+                return; // Không có mạng thì bảng chi tiết bên dưới vẫn dùng được.
+            }
+            var labels = /*[[${report.series.![label]}]]*/ [];
+            var values = /*[[${report.series.![revenue]}]]*/ [];
+            new Chart(host, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu (đ)',
+                        data: values,
+                        backgroundColor: 'rgba(13, 110, 253, 0.6)'
+                    }]
+                },
+                options: {
+                    plugins: {legend: {display: false}},
+                    scales: {y: {beginAtZero: true}}
+                }
+            });
+        })();
+    </script>
+</th:block>
+
+</body>
+</html>

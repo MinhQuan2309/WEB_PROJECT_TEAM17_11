@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Thanh toán đơn hàng</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <h1 class="h4 mb-3">Thanh toán đơn <span th:text="${order.code}">DH0001</span></h1>
+
+    <div class="alert alert-danger" th:if="${formError != null}" th:text="${formError}"></div>
+    <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Chọn phương thức thanh toán</div>
+                <div class="card-body">
+                    <form th:action="@{'/payment/start/' + ${order.id}}" method="post">
+                        <div class="form-check mb-2" th:each="m : ${methods}">
+                            <input class="form-check-input" type="radio" name="method"
+                                   th:id="'pt-' + ${m.name()}" th:value="${m.name()}"
+                                   th:checked="${order.paymentMethod == m}"/>
+                            <label class="form-check-label" th:for="'pt-' + ${m.name()}">
+                                <span th:text="${m.label}">Phương thức</span>
+                                <span class="text-muted small" th:if="${m.name() == 'COD'}">
+                                    - trả tiền mặt cho shipper khi nhận hàng
+                                </span>
+                                <span class="text-muted small" th:if="${m.name() != 'COD'}">
+                                    - chuyển sang cổng thanh toán sandbox
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="alert alert-warning small mb-3" th:if="${!strategy.isConfigured()}">
+                            Phương thức đang chọn là <strong th:text="${strategy.displayName()}">cổng</strong>
+                            nhưng chưa được cấu hình khoá sandbox, nên chưa thanh toán online được.
+                            Xem hướng dẫn trong <code>docs/BaoCao/Thien_CauHinh_VNPAY_MOMO.md</code>.
+                            Vẫn có thể chọn COD để hoàn tất đơn.
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-credit-card"></i> Tiến hành thanh toán
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Đơn hàng</div>
+                <div class="card-body small">
+                    <div>Người nhận: <strong th:text="${order.receiverName}">Tên</strong></div>
+                    <div th:text="${order.receiverPhone}">SĐT</div>
+                    <div class="text-muted" th:text="${order.shippingAddress}">Địa chỉ</div>
+                    <hr/>
+                    <div class="d-flex justify-content-between">
+                        <span>Tạm tính</span>
+                        <span th:text="${#numbers.formatInteger(order.subtotal, 0, 'POINT')} + ' đ'">0 đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Phí giao hàng</span>
+                        <span th:text="${#numbers.formatInteger(order.shippingFee, 0, 'POINT')} + ' đ'">0 đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-danger">
+                        <span>Giảm giá</span>
+                        <span th:text="'-' + ${#numbers.formatInteger(order.discount, 0, 'POINT')} + ' đ'">0 đ</span>
+                    </div>
+                    <hr/>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Cần trả</span>
+                        <span th:text="${#numbers.formatInteger(order.total, 0, 'POINT')} + ' đ'">0 đ</span>
+                    </div>
+                    <div class="mt-2">
+                        Trạng thái thanh toán:
+                        <span class="badge text-bg-light" th:text="${order.paymentStatus}">PENDING</span>
+                    </div>
+                    <div class="text-muted" th:if="${payment != null and payment.transactionId != null}">
+                        Mã giao dịch gần nhất: <span th:text="${payment.transactionId}">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

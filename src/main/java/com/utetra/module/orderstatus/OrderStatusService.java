@@ -4,6 +4,7 @@ import com.utetra.entity.Order;
 import com.utetra.entity.OrderStatus;
 import com.utetra.entity.PaymentMethod;
 import com.utetra.entity.PaymentStatus;
+import com.utetra.module.realtime.OrderStatusPublisher;
 import com.utetra.repository.OrderRepository;
 import com.utetra.repository.ShipmentRepository;
 import org.springframework.stereotype.Service;
@@ -33,11 +34,14 @@ public class OrderStatusService {
 
     private final OrderRepository orderRepository;
     private final ShipmentRepository shipmentRepository;
+    private final OrderStatusPublisher orderStatusPublisher;
 
     public OrderStatusService(OrderRepository orderRepository,
-                              ShipmentRepository shipmentRepository) {
+                              ShipmentRepository shipmentRepository,
+                              OrderStatusPublisher orderStatusPublisher) {
         this.orderRepository = orderRepository;
         this.shipmentRepository = shipmentRepository;
+        this.orderStatusPublisher = orderStatusPublisher;
     }
 
     /**
@@ -70,7 +74,11 @@ public class OrderStatusService {
         }
         applySideEffects(order, newStatus);
 
-        return orderRepository.save(order);
+        Order daLuu = orderRepository.save(order);
+        // Day trang thai moi cho khach / shop / shipper dang mo trang (tuan 4).
+        orderStatusPublisher.publishOrderStatus(daLuu,
+                "Don " + daLuu.getCode() + ": " + newStatus.getLabel());
+        return daLuu;
     }
 
     private void applySideEffects(Order order, OrderStatus newStatus) {
