@@ -21,6 +21,11 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     /** Toan bo khuyen mai cua san, ke ca dang tat (man quan tri). */
     List<Promotion> findByShopIsNullOrderByIdDesc();
 
+    // ===== Them cho man khuyen mai cua Vendor (Quan) =====
+
+    /** Toan bo khuyen mai cua mot shop, ke ca dang tat. */
+    List<Promotion> findByShopOrderByIdDesc(Shop shop);
+
     List<Promotion> findByProductAndActiveTrue(Product product);
 
     /** Cac chuong trinh dang chay tai thoi diem now. */

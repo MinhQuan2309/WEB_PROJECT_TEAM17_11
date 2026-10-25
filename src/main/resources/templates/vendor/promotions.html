@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Khuyến mãi của shop</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <h1 class="h4 mb-1">Khuyến mãi của shop</h1>
+            <p class="text-muted mb-0 small">
+                Chương trình khuyến mãi hiện thẳng trên trang sản phẩm, khách không cần nhập gì.
+                Mã giảm giá thì khách nhập ở bước thanh toán.
+            </p>
+        </div>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor}">Về bảng điều khiển</a>
+    </div>
+
+    <div class="alert alert-success py-2" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger py-2" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <!-- ============================ CHƯƠNG TRÌNH KHUYẾN MÃI ============================ -->
+    <h2 class="h5 mt-4 mb-2">1. Chương trình khuyến mãi</h2>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form class="row g-2" method="post" th:action="@{/vendor/promotions/save}">
+                <div class="col-md-4">
+                    <label class="form-label small" for="name">Tên chương trình *</label>
+                    <input class="form-control form-control-sm" id="name" name="name"
+                           placeholder="Giảm 15% trà sữa cuối tuần" required/>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small" for="discountType">Kiểu giảm *</label>
+                    <select class="form-select form-select-sm" id="discountType" name="discountType">
+                        <option th:each="t : ${discountTypes}" th:value="${t.name()}"
+                                th:text="${t.label}">kiểu</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small" for="value">Mức giảm *</label>
+                    <input class="form-control form-control-sm" id="value" name="value"
+                           type="number" min="0" step="1" value="10" required/>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small" for="maxDiscount">Giảm tối đa (đ)</label>
+                    <input class="form-control form-control-sm" id="maxDiscount" name="maxDiscount"
+                           type="number" min="0" step="1000" value="0"/>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label small" for="productId">Áp cho sản phẩm</label>
+                    <select class="form-select form-select-sm" id="productId" name="productId">
+                        <option value="">— toàn bộ shop —</option>
+                        <option th:each="p : ${products}" th:value="${p.id}" th:text="${p.name}">sản phẩm</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small" for="startAt">Bắt đầu *</label>
+                    <input class="form-control form-control-sm" id="startAt" name="startAt"
+                           type="datetime-local" required/>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small" for="endAt">Kết thúc *</label>
+                    <input class="form-control form-control-sm" id="endAt" name="endAt"
+                           type="datetime-local" required/>
+                </div>
+                <div class="col-12">
+                    <label class="form-label small" for="description">Mô tả</label>
+                    <input class="form-control form-control-sm" id="description" name="description"/>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-sm btn-primary" type="submit">Tạo chương trình</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <p class="text-muted small" th:if="${promotions.isEmpty()}">Shop chưa có chương trình khuyến mãi nào.</p>
+
+    <div class="table-responsive" th:unless="${promotions.isEmpty()}">
+        <table class="table table-sm align-middle">
+            <thead>
+            <tr><th style="width:3rem">#</th><th>Chương trình</th><th>Áp cho</th>
+                <th>Kiểu</th><th>Mức</th><th>Thời gian</th><th>Trạng thái</th><th style="width:10rem">Thao tác</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${promotions}">
+                <td th:text="${p.id}">1</td>
+                <td>
+                    <div class="fw-medium" th:text="${p.name}">tên</div>
+                    <small class="text-muted" th:text="${p.description}">mô tả</small>
+                </td>
+                <td th:text="${p.product != null} ? ${p.product.name} : 'Toàn bộ shop'">phạm vi</td>
+                <td th:text="${p.discountType.label}">kiểu</td>
+                <td>
+                    <span th:text="${p.value}">0</span>
+                    <span th:text="${p.discountType.name() == 'PERCENT'} ? '%' : 'đ'">%</span>
+                </td>
+                <td class="small">
+                    <div th:text="${#temporals.format(p.startAt, 'dd/MM/yyyy HH:mm')}">bắt đầu</div>
+                    <div th:text="${#temporals.format(p.endAt, 'dd/MM/yyyy HH:mm')}">kết thúc</div>
+                </td>
+                <td>
+                    <span class="badge text-bg-success" th:if="${p.running}">Đang chạy</span>
+                    <span class="badge text-bg-secondary" th:unless="${p.running}"
+                          th:text="${p.active} ? 'Ngoài thời gian' : 'Đã tắt'">tt</span>
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <form method="post" th:action="@{'/vendor/promotions/' + ${p.id} + '/toggle'}">
+                            <button class="btn btn-sm btn-outline-secondary" type="submit"
+                                    th:text="${p.active} ? 'Tắt' : 'Bật'">Tắt</button>
+                        </form>
+                        <form method="post" th:action="@{'/vendor/promotions/' + ${p.id} + '/delete'}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Xoá</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================================= MÃ GIẢM GIÁ ================================= -->
+    <h2 class="h5 mt-5 mb-2">2. Mã giảm giá</h2>
+    <p class="text-muted small">
+        Khách nhập mã này ở bước thanh toán. Mã chỉ áp dụng cho đơn có sản phẩm của shop bạn.
+    </p>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form class="row g-2" method="post" th:action="@{/vendor/promotions/vouchers/save}">
+                <div class="col-md-3">
+                    <label class="form-label small" for="code">Mã *</label>
+                    <input class="form-control form-control-sm text-uppercase" id="code" name="code"
+                           placeholder="UTETRA10" required/>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small" for="vDiscountType">Kiểu giảm *</label>
+                    <select class="form-select form-select-sm" id="vDiscountType" name="discountType">
+                        <option th:each="t : ${discountTypes}" th:value="${t.name()}"
+                                th:text="${t.label}">kiểu</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small" for="vValue">Mức giảm *</label>
+                    <input class="form-control form-control-sm" id="vValue" name="value"
+                           type="number" min="0" step="1" value="10" required/>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small" for="minOrderTotal">Đơn tối thiểu (đ)</label>
+                    <input class="form-control form-control-sm" id="minOrderTotal" name="minOrderTotal"
+                           type="number" min="0" step="1000" value="0"/>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small" for="quantity">Số lượt</label>
+                    <input class="form-control form-control-sm" id="quantity" name="quantity"
+                           type="number" min="0" step="1" value="100"/>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label small" for="vStartAt">Bắt đầu *</label>
+                    <input class="form-control form-control-sm" id="vStartAt" name="startAt"
+                           type="datetime-local" required/>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small" for="vEndAt">Kết thúc *</label>
+                    <input class="form-control form-control-sm" id="vEndAt" name="endAt"
+                           type="datetime-local" required/>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-sm btn-primary" type="submit">Tạo mã giảm giá</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <p class="text-muted small" th:if="${vouchers.isEmpty()}">Shop chưa phát hành mã giảm giá nào.</p>
+
+    <div class="table-responsive" th:unless="${vouchers.isEmpty()}">
+        <table class="table table-sm align-middle">
+            <thead>
+            <tr><th style="width:3rem">#</th><th>Mã</th><th>Kiểu</th><th>Mức</th>
+                <th>Đơn tối thiểu</th><th>Lượt dùng</th><th>Thời gian</th>
+                <th>Trạng thái</th><th style="width:10rem">Thao tác</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${vouchers}">
+                <td th:text="${v.id}">1</td>
+                <td><code class="fw-medium" th:text="${v.code}">MA</code></td>
+                <td th:text="${v.discountType.label}">kiểu</td>
+                <td>
+                    <span th:text="${v.value}">0</span>
+                    <span th:text="${v.discountType.name() == 'PERCENT'} ? '%' : 'đ'">%</span>
+                </td>
+                <td th:text="${#numbers.formatInteger(v.minOrderTotal, 0, 'POINT')} + ' đ'">0 đ</td>
+                <td>
+                    <span th:text="${v.usedCount}">0</span>
+                    <span th:if="${v.quantity > 0}" th:text="'/' + ${v.quantity}">/0</span>
+                    <span th:if="${v.quantity == 0}" class="text-muted">/ không giới hạn</span>
+                </td>
+                <td class="small">
+                    <div th:text="${v.startAt != null} ? ${#temporals.format(v.startAt, 'dd/MM/yyyy HH:mm')} : '—'">bắt đầu</div>
+                    <div th:text="${v.endAt != null} ? ${#temporals.format(v.endAt, 'dd/MM/yyyy HH:mm')} : '—'">kết thúc</div>
+                </td>
+                <td>
+                    <span class="badge" th:classappend="${v.active} ? 'text-bg-success' : 'text-bg-secondary'"
+                          th:text="${v.active} ? 'Đang bật' : 'Đã tắt'">tt</span>
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <form method="post" th:action="@{'/vendor/promotions/vouchers/' + ${v.id} + '/toggle'}">
+                            <button class="btn btn-sm btn-outline-secondary" type="submit"
+                                    th:text="${v.active} ? 'Tắt' : 'Bật'">Tắt</button>
+                        </form>
+                        <form method="post" th:action="@{'/vendor/promotions/vouchers/' + ${v.id} + '/delete'}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Xoá</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
