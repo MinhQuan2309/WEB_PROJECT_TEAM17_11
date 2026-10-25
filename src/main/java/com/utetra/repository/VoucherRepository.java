@@ -22,4 +22,11 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
 
     /** Voucher cua san: shop = null. */
     List<Voucher> findByShopIsNullAndActiveTrue();
+
+    // ===== Them cho man khuyen mai cua Vendor (Quan) =====
+
+    /** Toan bo ma giam gia cua mot shop, ke ca dang tat. */
+    List<Voucher> findByShopOrderByIdDesc(Shop shop);
+
+    boolean existsByCodeIgnoreCase(String code);
 }
