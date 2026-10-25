@@ -9,6 +9,7 @@ import com.utetra.entity.PaymentMethod;
 import com.utetra.entity.PaymentStatus;
 import com.utetra.entity.Product;
 import com.utetra.entity.ProductVariant;
+import com.utetra.entity.Role;
 import com.utetra.entity.Shipment;
 import com.utetra.entity.Shop;
 import com.utetra.entity.User;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +63,11 @@ public class DemoOrderSeeder {
     private static final BigDecimal PHI_GIAO = BigDecimal.valueOf(15000);
     /** Co dinh hat giong de moi lan tao du lieu demo deu giong nhau. */
     private static final long HAT_GIONG = 20261019L;
+    /**
+     * Tai khoan khach danh rieng cho du lieu demo. Co y KHONG dung "khach" vi do la
+     * tai khoan goc ma test tu dong cua nhom dua vao.
+     */
+    private static final String TAI_KHOAN_KHACH_DEMO = "demo1";
 
     private static final String[] TEN_KHACH = {
             "Nguyen Minh Anh", "Tran Quoc Bao", "Le Thu Ha", "Pham Gia Huy",
@@ -79,6 +86,7 @@ public class DemoOrderSeeder {
     private final ProductVariantRepository variantRepository;
     private final UserRepository userRepository;
     private final com.utetra.repository.CarrierRepository carrierRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -91,7 +99,8 @@ public class DemoOrderSeeder {
                            ProductRepository productRepository,
                            ProductVariantRepository variantRepository,
                            UserRepository userRepository,
-                           com.utetra.repository.CarrierRepository carrierRepository) {
+                           com.utetra.repository.CarrierRepository carrierRepository,
+                           PasswordEncoder passwordEncoder) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.paymentRepository = paymentRepository;
@@ -101,6 +110,7 @@ public class DemoOrderSeeder {
         this.variantRepository = variantRepository;
         this.userRepository = userRepository;
         this.carrierRepository = carrierRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -115,14 +125,19 @@ public class DemoOrderSeeder {
             log.info("Da co don hang, bo qua buoc tao don hang demo.");
             return;
         }
-        User khach = userRepository.findByUsername("khach").orElse(null);
         User shipper = userRepository.findByUsername("shipper").orElse(null);
         User vendor1 = userRepository.findByUsername("vendor1").orElse(null);
         User vendor2 = userRepository.findByUsername("vendor2").orElse(null);
-        if (khach == null || shipper == null || vendor1 == null || vendor2 == null) {
-            log.warn("Chua co du lieu nen tang (khach/vendor/shipper), bo qua don hang demo.");
+        if (shipper == null || vendor1 == null || vendor2 == null) {
+            log.warn("Chua co du lieu nen tang (vendor1/vendor2/shipper), bo qua don hang demo.");
             return;
         }
+
+        // Khach cua don hang demo la tai khoan RIENG (demo1..demo5), khong dung "khach".
+        // Ly do: "khach" la tai khoan ma test tu dong cua nhom dung lam diem xuat phat.
+        // Neu don demo DELIVERED gan vao "khach" thi test kiem tra "chua mua thi khong
+        // duoc danh gia" se that bai vi khach da co san don da giao.
+        User khach = layHoacTaoKhachDemo();
 
         Shop shop1 = shopRepository.findByOwner(vendor1).orElse(null);
         Shop shop2 = shopRepository.findByOwner(vendor2).orElse(null);
@@ -149,6 +164,27 @@ public class DemoOrderSeeder {
         dem += 4;
 
         log.info("Da tao {} don hang demo (trai deu {} ngay gan nhat).", dem, SO_NGAY);
+    }
+
+    /**
+     * Lay tai khoan khach danh rieng cho du lieu demo ("demo1"), tao moi neu chua co.
+     *
+     * Tach khoi tai khoan "khach" de du lieu demo khong lam sai lech cac test tu dong
+     * cua nhom (vi du test danh gia san pham can khach CHUA mua hang).
+     */
+    private User layHoacTaoKhachDemo() {
+        return userRepository.findByUsername(TAI_KHOAN_KHACH_DEMO).orElseGet(() -> {
+            User u = new User();
+            u.setUsername(TAI_KHOAN_KHACH_DEMO);
+            u.setFullName("Khach Demo UTETra");
+            u.setEmail("demo1@utetra.vn");
+            u.setPassword(passwordEncoder.encode("123456"));
+            u.setRole(Role.USER);
+            u.setEnabled(true);
+            User daLuu = userRepository.save(u);
+            log.info("Da tao tai khoan khach demo '{}' (mat khau 123456).", TAI_KHOAN_KHACH_DEMO);
+            return daLuu;
+        });
     }
 
     /** Tao mot lo don trai deu trong SO_NGAY ngay gan nhat, trang thai tron lan co chu y. */
