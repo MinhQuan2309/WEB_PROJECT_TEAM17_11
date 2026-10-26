@@ -1,6 +1,6 @@
 # Hướng dẫn chụp hình cho Chương 5 — Giao diện
 
-Dành cho phần của Quân (xác thực, khu Admin, khu Manager), 17 hình.
+Dành cho phần của Quân (xác thực, khu Admin, khu Manager), 15 hình.
 Làm theo đúng thứ tự dưới đây thì chụp được hết trong **một lần chạy app**, không phải
 khởi động lại giữa chừng.
 
@@ -130,44 +130,44 @@ Giờ hệ thống có một cửa hàng ở trạng thái `PENDING`.
 
 ---
 
-## Bước 4. Khu quản trị — Hình 5.8 đến 5.14
+## Bước 4. Khu quản trị — Hình 5.6 đến 5.12
 
 Đăng nhập `admin` / `123456`. Đăng nhập xong hệ thống tự đưa về `/admin`.
 
 | Hình | Trang | Chụp gì | Cỡ |
 |---|---|---|---|
-| **5.8** | `/admin` | Bảng điều khiển, thấy ô số cửa hàng đang chờ duyệt bằng 1 | 1280 |
-| **5.9** | `/admin/shops` | Lọc trạng thái **PENDING**, thấy `UTETra Thu Duc` và các nút kiểm duyệt | 1280 |
-| **5.10** | `/admin/shops` | Phóng to đúng hàng của hồ sơ chờ duyệt, thấy ô nhập lý do cạnh nút Từ chối | — |
-| **5.11** | `/admin/users` | Gõ `van` vào ô tìm kiếm cho ra vài kết quả, thấy nút Khoá và ô đổi vai | 1280 |
-| **5.12** | `/admin/categories` | Cây danh mục, thấy cột đường dẫn không dấu đã sinh | 1280 |
-| **5.13** | `/admin/promotions` | Tạo một chương trình trước khi chụp, để có dòng **Đang chạy** màu xanh | 1280 |
-| **5.14** | `/admin/shops` | Cùng trang Hình 5.9 | 375 |
+| **5.6** | `/admin` | Bảng điều khiển, thấy ô số cửa hàng đang chờ duyệt bằng 1 | 1280 |
+| **5.7** | `/admin/shops` | Lọc trạng thái **PENDING**, thấy `UTETra Thu Duc` và các nút kiểm duyệt | 1280 |
+| **5.8** | `/admin/shops` | Phóng to đúng hàng của hồ sơ chờ duyệt, thấy ô nhập lý do cạnh nút Từ chối | — |
+| **5.9** | `/admin/users` | Gõ `van` vào ô tìm kiếm cho ra vài kết quả, thấy nút Khoá và ô đổi vai | 1280 |
+| **5.10** | `/admin/categories` | Cây danh mục, thấy cột đường dẫn không dấu đã sinh | 1280 |
+| **5.11** | `/admin/promotions` | Tạo một chương trình trước khi chụp, để có dòng **Đang chạy** màu xanh | 1280 |
+| **5.12** | `/admin/shops` | Cùng trang Hình 5.7 | 375 |
 
 Chi tiết vài hình:
 
-**Hình 5.10** — ô nhập lý do nằm **ngay trong hàng của bảng**, không phải hộp thoại bật lên.
+**Hình 5.8** — ô nhập lý do nằm **ngay trong hàng của bảng**, không phải hộp thoại bật lên.
 Cắt sát lấy một hàng gồm: tên cửa hàng, nút Duyệt, ô nhập lý do, nút Từ chối. Nếu muốn ảnh
 nói rõ hơn thì gõ sẵn một lý do vào ô, ví dụ `Thieu giay phep kinh doanh`, rồi mới chụp.
 
-**Hình 5.13** — trước khi chụp hãy tạo một chương trình: tên `Giam 10% toan san`, kiểu
+**Hình 5.11** — trước khi chụp hãy tạo một chương trình: tên `Giam 10% toan san`, kiểu
 `Phần trăm`, mức `10`, bắt đầu để **hôm qua**, kết thúc để **tuần sau**. Để thời gian như vậy
 thì trạng thái mới hiện **Đang chạy**; nếu đặt bắt đầu ở tương lai nó sẽ hiện *Ngoài thời gian*
 và ảnh kém thuyết phục.
 
-**Hình 5.14** — ở 375px, cuộn ngang bảng một chút rồi mới chụp, để ảnh cho thấy bảng
+**Hình 5.12** — ở 375px, cuộn ngang bảng một chút rồi mới chụp, để ảnh cho thấy bảng
 **cuộn được** chứ không bị tràn. Đây là bằng chứng cho tiêu chí responsive.
 
-> Sau khi chụp xong Hình 5.9 và 5.10, **bấm Duyệt** cho `UTETra Thu Duc` để thấy chủ cửa hàng
-> được nâng vai lên VENDOR. Ảnh này không nằm trong danh sách 17 hình nhưng rất đáng chụp
+> Sau khi chụp xong Hình 5.7 và 5.8, **bấm Duyệt** cho `UTETra Thu Duc` để thấy chủ cửa hàng
+> được nâng vai lên VENDOR. Ảnh này không nằm trong danh sách 15 hình nhưng rất đáng chụp
 > thêm cho mục 3.1.2.
 
 ---
 
-## Bước 5. Khu Manager — Hình 5.15 đến 5.17
+## Bước 5. Khu Manager — Hình 5.13 đến 5.15
 
 Dữ liệu mẫu chỉ có **một** tài khoản Manager, và cả hai cửa hàng đều do người đó quản lý.
-Muốn chụp được Hình 5.17 phải tạo Manager thứ hai. Làm hoàn toàn bằng giao diện, vẫn đang
+Muốn chụp được Hình 5.15 phải tạo Manager thứ hai. Làm hoàn toàn bằng giao diện, vẫn đang
 đăng nhập `admin`:
 
 1. Vào `/admin/users`, tìm tài khoản `khach`, đổi vai thành **MANAGER**
@@ -180,11 +180,11 @@ Giờ `manager` phụ trách `UTETra Le Van Viet`, còn `khach` phụ trách `UT
 
 | Hình | Trang | Chụp gì | Cỡ |
 |---|---|---|---|
-| **5.15** | `/manager` | Bảng điều khiển, số cửa hàng bằng **1** chứ không phải 2 | 1280 |
-| **5.16** | `/manager/products` | Danh sách sản phẩm, thấy nút **Ẩn** ở cột thao tác | 1280 |
-| **5.17** | `/manager/shops` | Danh sách chỉ có `UTETra Le Van Viet` | 1280 |
+| **5.13** | `/manager` | Bảng điều khiển, số cửa hàng bằng **1** chứ không phải 2 | 1280 |
+| **5.14** | `/manager/products` | Danh sách sản phẩm, thấy nút **Ẩn** ở cột thao tác | 1280 |
+| **5.15** | `/manager/shops` | Danh sách chỉ có `UTETra Le Van Viet` | 1280 |
 
-Cho Hình 5.17, chụp thêm một ảnh nữa: đăng xuất, đăng nhập `khach` / `123456`, vào
+Cho Hình 5.15, chụp thêm một ảnh nữa: đăng xuất, đăng nhập `khach` / `123456`, vào
 `/manager/shops`, chụp danh sách chỉ có `UTETra Vo Van Ngan`. Ghép hai ảnh cạnh nhau.
 
 ---
@@ -195,10 +195,10 @@ Khi dán hình, sửa luôn mấy chú thích sau cho khớp với cái thật t
 
 | Hình | Chú thích đang ghi | Sửa thành |
 |---|---|---|
-| **5.10** | Hộp thoại nhập lý do khi từ chối hồ sơ | Ô nhập lý do khi từ chối hồ sơ |
-| **5.17** | Manager bị từ chối khi chạm vào cửa hàng ngoài phạm vi | Hai Manager chỉ thấy cửa hàng trong phạm vi của mình |
+| **5.8** | Hộp thoại nhập lý do khi từ chối hồ sơ | Ô nhập lý do khi từ chối hồ sơ |
+| **5.15** | Manager bị từ chối khi chạm vào cửa hàng ngoài phạm vi | Hai Manager chỉ thấy cửa hàng trong phạm vi của mình |
 
-Lý do sửa Hình 5.17: việc chặn vượt quyền xảy ra khi gửi lệnh `POST`, không gõ được bằng
+Lý do sửa Hình 5.15: việc chặn vượt quyền xảy ra khi gửi lệnh `POST`, không gõ được bằng
 thanh địa chỉ trình duyệt nên không có màn hình nào để chụp. Bằng chứng cho việc chặn đã nằm
 ở **Bảng 4.3** và ở các test tự động rồi. Nếu vẫn muốn một hình về việc chặn, cách tốt hơn là
 chụp cửa sổ **JUnit** trong Spring Tools khi chạy `ManagerScopeServiceTest` xanh hết, rồi đưa
@@ -208,9 +208,9 @@ vào mục 6.1 thay vì Chương 5.
 
 ## Bảng kiểm trước khi nộp
 
-- [ ] Đủ 17 hình, không còn dòng xám `[ Chèn hình tại đây … ]` nào
+- [ ] Đủ 15 hình, không còn dòng xám `[ Chèn hình tại đây … ]` nào
 - [ ] Ảnh máy tính đều chụp ở 1280px, ảnh điện thoại đều ở 375px
 - [ ] Không ảnh nào dính thanh tác vụ Windows hay panel F12
 - [ ] Chữ trong ảnh đọc được khi in ra giấy — in thử một trang để kiểm
-- [ ] Chú thích đặt **dưới** hình, in nghiêng, căn giữa, đánh số liên tục 5.1 → 5.17
+- [ ] Chú thích đặt **dưới** hình, in nghiêng, căn giữa, đánh số liên tục 5.1 → 5.15
 - [ ] Tên tài khoản trong ảnh là tài khoản mẫu, không phải email hay mật khẩu thật
