@@ -172,9 +172,18 @@ Muốn chụp được Hình 5.15 phải tạo Manager thứ hai. Làm hoàn to�
 
 1. Vào `/admin/users`, tìm tài khoản `khach`, đổi vai thành **MANAGER**
 2. Vào `/admin/shops`, ở hàng `UTETra Vo Van Ngan` chọn người quản lý là **khach**
-3. Đăng xuất
+3. Ở hàng `UTETra Thu Duc` cũng chọn người quản lý là **khach**
+4. Đăng xuất
 
-Giờ `manager` phụ trách `UTETra Le Van Viet`, còn `khach` phụ trách `UTETra Vo Van Ngan`.
+Giờ `manager` phụ trách `UTETra Le Van Viet`, còn `khach` phụ trách hai cửa hàng kia.
+
+> **Đừng bỏ qua ý 3.** Manager nhìn thấy shop của mình **cộng với shop chưa ai nhận**
+> (repository dùng `findByManagerOrManagerIsNullOrderByIdDesc`). Admin bấm Duyệt thì không
+> gán người quản lý — chỉ Manager tự duyệt mới tự nhận shop. Nên `UTETra Thu Duc` vừa được
+> admin duyệt ở Bước 4 sẽ hiện ra cho **mọi** Manager, làm hỏng hình 5.15.
+>
+> Ảnh chụp lúc còn shop chưa ai nhận thì đừng xoá: nó minh hoạ đúng quy tắc này, dùng làm
+> hình phụ cho mục 2.5.1 rất hợp.
 
 Đăng nhập `manager` / `123456`, hệ thống tự đưa về `/manager`.
 
@@ -185,7 +194,9 @@ Giờ `manager` phụ trách `UTETra Le Van Viet`, còn `khach` phụ trách `UT
 | **5.15** | `/manager/shops` | Danh sách chỉ có `UTETra Le Van Viet` | 1280 |
 
 Cho Hình 5.15, chụp thêm một ảnh nữa: đăng xuất, đăng nhập `khach` / `123456`, vào
-`/manager/shops`, chụp danh sách chỉ có `UTETra Vo Van Ngan`. Ghép hai ảnh cạnh nhau.
+`/manager/shops`, chụp danh sách gồm `UTETra Vo Van Ngan` và `UTETra Thu Duc`.
+Ghép hai ảnh cạnh nhau — hai danh sách không có cửa hàng nào trùng, đó chính là điều cần
+chứng minh.
 
 ---
 
