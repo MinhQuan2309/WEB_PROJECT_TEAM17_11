@@ -48,7 +48,7 @@
                                th:text="'Đặt lúc: ' + (${order.createdAt != null ? #temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm') : ''})"></small>
                     </div>
                     <span id="detailOrderStatusBadge" class="badge fs-6"
-                          th:classappend="${order.status.name() == 'DELIVERED' ? 'bg-success' : (order.status.name() == 'CANCELLED' or o.status.name() == 'RETURNED_REFUNDED' ? 'bg-danger' : 'bg-warning text-dark')}"
+                          th:classappend="${order.status.name() == 'DELIVERED' ? 'bg-success' : (order.status.name() == 'CANCELLED' or order.status.name() == 'RETURNED_REFUNDED' ? 'bg-danger' : 'bg-warning text-dark')}"
                           th:text="${order.status.label}">Trạng thái</span>
                 </div>
 
