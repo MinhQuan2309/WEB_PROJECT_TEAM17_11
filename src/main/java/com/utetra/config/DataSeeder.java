@@ -84,18 +84,18 @@ public class DataSeeder implements ApplicationRunner {
         Category doAnKem = category("Do an kem", "do-an-kem", null);
         categoryRepository.saveAll(List.of(traSua, traTraiCay, caPhe, doAnKem));
 
-        createProduct(shop1, traSua, "Tra sua tran chau duong den", 35000, 120, 48, 5);
-        createProduct(shop1, traSua, "Tra sua Oolong kem pho mai", 42000, 95, 31, 5);
-        createProduct(shop1, traSua, "Tra sua matcha", 40000, 80, 22, 4);
-        createProduct(shop1, traTraiCay, "Tra dao cam sa", 38000, 150, 65, 5);
-        createProduct(shop1, traTraiCay, "Tra vai", 36000, 70, 18, 4);
-        createProduct(shop1, caPhe, "Ca phe sua da", 25000, 60, 12, 4);
-        createProduct(shop2, traSua, "Tra sua truyen thong", 30000, 200, 88, 5);
-        createProduct(shop2, traSua, "Tra sua khoai mon", 38000, 110, 26, 4);
-        createProduct(shop2, traTraiCay, "Tra oi hong", 39000, 90, 24, 5);
-        createProduct(shop2, traTraiCay, "Tra chanh day", 32000, 130, 41, 4);
-        createProduct(shop2, caPhe, "Bac xiu", 29000, 55, 9, 4);
-        createProduct(shop2, doAnKem, "Banh flan tran chau", 20000, 45, 15, 5);
+        createProduct(shop1, traSua, "Tra sua tran chau duong den", 35000, 120, 48, 5, "tra-sua-tran-chau-duong-den");
+        createProduct(shop1, traSua, "Tra sua Oolong kem pho mai", 42000, 95, 31, 5, "tra-sua-oolong-kem-pho-mai");
+        createProduct(shop1, traSua, "Tra sua matcha", 40000, 80, 22, 4, "tra-sua-matcha");
+        createProduct(shop1, traTraiCay, "Tra dao cam sa", 38000, 150, 65, 5, "tra-dao-cam-sa");
+        createProduct(shop1, traTraiCay, "Tra vai", 36000, 70, 18, 4, "tra-vai");
+        createProduct(shop1, caPhe, "Ca phe sua da", 25000, 60, 12, 4, "ca-phe-sua-da");
+        createProduct(shop2, traSua, "Tra sua truyen thong", 30000, 200, 88, 5, "tra-sua-truyen-thong");
+        createProduct(shop2, traSua, "Tra sua khoai mon", 38000, 110, 26, 4, "tra-sua-khoai-mon");
+        createProduct(shop2, traTraiCay, "Tra oi hong", 39000, 90, 24, 5, "tra-oi-hong");
+        createProduct(shop2, traTraiCay, "Tra chanh day", 32000, 130, 41, 4, "tra-chanh-day");
+        createProduct(shop2, caPhe, "Bac xiu", 29000, 55, 9, 4, "bac-xiu");
+        createProduct(shop2, doAnKem, "Banh flan tran chau", 20000, 45, 15, 5, "banh-flan-tran-chau");
 
         for (Shop s : List.of(shop1, shop2)) {
             toppingRepository.saveAll(List.of(
@@ -149,7 +149,8 @@ public class DataSeeder implements ApplicationRunner {
     }
 
     private void createProduct(Shop shop, Category category, String name,
-                               long price, int sold, int likes, int rating) {
+                               long price, int sold, int likes, int rating,
+                               String imageSlug) {
         Product p = new Product();
         p.setShop(shop);
         p.setCategory(category);
@@ -161,6 +162,7 @@ public class DataSeeder implements ApplicationRunner {
         p.setLikeCount(likes);
         p.setRatingAvg(BigDecimal.valueOf(rating));
         p.setRatingCount(Math.max(sold / 10, 1));
+        p.setImageUrl("/img/products/" + imageSlug + ".jpg");
         productRepository.save(p);
 
         variantRepository.saveAll(List.of(
