@@ -12,8 +12,13 @@
         <h6 class="card-title mb-1" th:text="${product.name}">Tên sản phẩm</h6>
         <div class="small text-muted mb-2" th:text="${product.shop != null} ? ${product.shop.name} : ''">Shop</div>
         <div class="mt-auto d-flex justify-content-between align-items-center">
-            <span class="fw-bold text-danger"
-                  th:text="${#numbers.formatInteger(product.basePrice, 0, 'POINT')} + ' đ'">0 đ</span>
+            <!-- Gia sau khuyen mai do PromotionPricingService tinh, dung chung voi luc dat hang -->
+            <span th:with="dangGiam=${@promotionPricingService.hasDiscount(product)}">
+                <span class="text-muted text-decoration-line-through small me-1" th:if="${dangGiam}"
+                      th:text="${#numbers.formatInteger(product.basePrice, 0, 'POINT')} + ' đ'">0 đ</span>
+                <span class="fw-bold text-danger"
+                      th:text="${#numbers.formatInteger(@promotionPricingService.effectiveBasePrice(product), 0, 'POINT')} + ' đ'">0 đ</span>
+            </span>
             <small class="text-muted">
                 <i class="bi bi-star-fill text-warning"></i>
                 <span th:text="${product.ratingAvg}">0</span>

@@ -25,10 +25,16 @@ public record CartItemViewDto(
         BigDecimal unitPrice,
         BigDecimal lineTotal
 ) {
-    public static CartItemViewDto from(CartItem item) {
-        BigDecimal base = item.getProduct().getBasePrice() != null
-                ? item.getProduct().getBasePrice()
-                : BigDecimal.ZERO;
+    /**
+     * @param giaGocSauKhuyenMai gia goc cua san pham sau khi da tru khuyen mai dang chay,
+     *                           do PromotionPricingService tinh ra
+     */
+    public static CartItemViewDto from(CartItem item, BigDecimal giaGocSauKhuyenMai) {
+        BigDecimal base = giaGocSauKhuyenMai != null
+                ? giaGocSauKhuyenMai
+                : (item.getProduct().getBasePrice() != null
+                   ? item.getProduct().getBasePrice()
+                   : BigDecimal.ZERO);
         BigDecimal variantExtra = (item.getVariant() != null && item.getVariant().getExtraPrice() != null)
                 ? item.getVariant().getExtraPrice()
                 : BigDecimal.ZERO;

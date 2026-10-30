@@ -105,20 +105,23 @@
                     <form id="productOptionForm"
                           th:action="@{/cart/add}"
                           method="post"
-                          th:attr="data-base-price=${product.basePrice}">
+                          th:attr="data-base-price=${@promotionPricingService.effectiveBasePrice(product)}">
                         <input type="hidden" name="productId" th:value="${product.id}"/>
 
                         <div class="p-3 rounded-3 bg-light border mb-3">
                             <div class="d-flex justify-content-between align-items-baseline">
                                 <div>
                                     <span class="small text-muted d-block">Đơn giá mỗi ly (theo tùy chọn):</span>
+                                    <span class="text-muted text-decoration-line-through small d-block"
+                                          th:if="${@promotionPricingService.hasDiscount(product)}"
+                                          th:text="'Giá gốc ' + ${#numbers.formatInteger(product.basePrice, 0, 'POINT')} + ' đ'">Giá gốc</span>
                                     <span id="dynamicUnitPrice" class="price-tag-lg"
-                                          th:text="${#numbers.formatInteger(product.basePrice, 0, 'POINT')} + ' đ'">35.000 đ</span>
+                                          th:text="${#numbers.formatInteger(@promotionPricingService.effectiveBasePrice(product), 0, 'POINT')} + ' đ'">35.000 đ</span>
                                 </div>
                                 <div class="text-end">
                                     <span class="small text-muted d-block">Tạm tính:</span>
                                     <span id="dynamicTotalPrice" class="h5 fw-bold text-dark mb-0"
-                                          th:text="${#numbers.formatInteger(product.basePrice, 0, 'POINT')} + ' đ'">35.000 đ</span>
+                                          th:text="${#numbers.formatInteger(@promotionPricingService.effectiveBasePrice(product), 0, 'POINT')} + ' đ'">35.000 đ</span>
                                 </div>
                             </div>
                         </div>

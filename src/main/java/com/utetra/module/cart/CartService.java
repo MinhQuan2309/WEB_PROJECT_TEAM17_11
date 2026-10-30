@@ -27,19 +27,22 @@ public class CartService {
     private final ProductVariantRepository variantRepository;
     private final ToppingRepository toppingRepository;
     private final UserRepository userRepository;
+    private final com.utetra.module.promotion.PromotionPricingService promotionPricingService;
 
     public CartService(CartRepository cartRepository,
                        CartItemRepository cartItemRepository,
                        ProductRepository productRepository,
                        ProductVariantRepository variantRepository,
                        ToppingRepository toppingRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       com.utetra.module.promotion.PromotionPricingService promotionPricingService) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
         this.variantRepository = variantRepository;
         this.toppingRepository = toppingRepository;
         this.userRepository = userRepository;
+        this.promotionPricingService = promotionPricingService;
     }
 
     @Transactional(readOnly = true)
@@ -85,7 +88,8 @@ public class CartService {
         for (List<CartItem> shopItems : byShop.values()) {
             Shop shop = shopItems.get(0).getProduct().getShop();
             List<CartItemViewDto> viewDtos = shopItems.stream()
-                    .map(CartItemViewDto::from)
+                    .map(ci -> CartItemViewDto.from(ci,
+                            promotionPricingService.effectiveBasePrice(ci.getProduct())))
                     .toList();
             int shopQty = viewDtos.stream().mapToInt(CartItemViewDto::quantity).sum();
             BigDecimal shopSub = viewDtos.stream()

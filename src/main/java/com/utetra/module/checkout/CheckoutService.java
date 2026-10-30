@@ -37,6 +37,7 @@ public class CheckoutService {
     private final ProductVariantRepository variantRepository;
     private final ShopRepository shopRepository;
     private final CartService cartService;
+    private final com.utetra.module.promotion.PromotionPricingService promotionPricingService;
 
     public CheckoutService(CartRepository cartRepository,
                            CartItemRepository cartItemRepository,
@@ -48,7 +49,8 @@ public class CheckoutService {
                            ProductRepository productRepository,
                            ProductVariantRepository variantRepository,
                            ShopRepository shopRepository,
-                           CartService cartService) {
+                           CartService cartService,
+                           com.utetra.module.promotion.PromotionPricingService promotionPricingService) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.addressRepository = addressRepository;
@@ -60,6 +62,7 @@ public class CheckoutService {
         this.variantRepository = variantRepository;
         this.shopRepository = shopRepository;
         this.cartService = cartService;
+        this.promotionPricingService = promotionPricingService;
     }
 
     @Transactional(readOnly = true)
@@ -437,8 +440,13 @@ public class CheckoutService {
         return result;
     }
 
+    /**
+     * Don gia mot dong gio hang: gia goc da tru khuyen mai dang chay, cong phu thu
+     * size va topping. Dung chung PromotionPricingService voi phan hien thi nen so
+     * tien tren man hinh luon bang so tien khach tra.
+     */
     private BigDecimal computeUnitPrice(CartItem ci) {
-        BigDecimal base = ci.getProduct().getBasePrice() != null ? ci.getProduct().getBasePrice() : BigDecimal.ZERO;
+        BigDecimal base = promotionPricingService.effectiveBasePrice(ci.getProduct());
         BigDecimal variantExtra = (ci.getVariant() != null && ci.getVariant().getExtraPrice() != null)
                 ? ci.getVariant().getExtraPrice()
                 : BigDecimal.ZERO;
