@@ -146,11 +146,26 @@
                               th:text="${#numbers.formatInteger(order.total, 0, 'POINT')} + ' đ'">0 đ</span>
                     </div>
 
-                    <div th:if="${(order.paymentMethod.name() == 'VNPAY' or order.paymentMethod.name() == 'MOMO') and order.paymentStatus.name() != 'PAID' and order.status.name() != 'CANCELLED'}"
+                    <div th:if="${order.paymentStatus.name() == 'PAID'}" class="d-grid mb-3">
+                        <a th:href="@{/orders/{id}/invoice(id=${order.id})}" class="btn btn-outline-primary">
+                            <i class="bi bi-receipt me-1"></i> Xem hóa đơn
+                        </a>
+                    </div>
+
+                    <!-- VNPAY da co khoa sandbox that nen di thang vao module payment,
+                         MOMO van dung cong mo phong vi chua co khoa merchant. -->
+                    <div th:if="${order.paymentMethod.name() == 'VNPAY' and order.paymentStatus.name() != 'PAID' and order.status.name() != 'CANCELLED'}"
                          class="d-grid mb-3">
-                        <a th:href="@{/checkout/payment-gateway(codes=${order.code}, method=${order.paymentMethod.name()})}"
+                        <a th:href="@{/payment/checkout/{id}(id=${order.id})}" class="btn btn-primary">
+                            <i class="bi bi-credit-card me-1"></i> Thanh toán ngay qua VNPAY
+                        </a>
+                    </div>
+
+                    <div th:if="${order.paymentMethod.name() == 'MOMO' and order.paymentStatus.name() != 'PAID' and order.status.name() != 'CANCELLED'}"
+                         class="d-grid mb-3">
+                        <a th:href="@{/checkout/payment-gateway(codes=${order.code}, method='MOMO')}"
                            class="btn btn-primary">
-                            <i class="bi bi-credit-card me-1"></i> Thanh toán ngay qua <span th:text="${order.paymentMethod.name()}">VNPAY</span>
+                            <i class="bi bi-credit-card me-1"></i> Thanh toán ngay qua MOMO
                         </a>
                     </div>
 

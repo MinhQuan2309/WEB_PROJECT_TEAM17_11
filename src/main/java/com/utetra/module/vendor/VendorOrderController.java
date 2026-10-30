@@ -31,11 +31,14 @@ public class VendorOrderController {
 
     private final VendorOrderService vendorOrderService;
     private final PaymentRepository paymentRepository;
+    private final com.utetra.module.invoice.InvoiceService invoiceService;
 
     public VendorOrderController(VendorOrderService vendorOrderService,
-                                 PaymentRepository paymentRepository) {
+                                 PaymentRepository paymentRepository,
+                                 com.utetra.module.invoice.InvoiceService invoiceService) {
         this.vendorOrderService = vendorOrderService;
         this.paymentRepository = paymentRepository;
+        this.invoiceService = invoiceService;
     }
 
     @GetMapping
@@ -74,6 +77,29 @@ public class VendorOrderController {
         model.addAttribute("payment", paymentRepository.findTopByOrderOrderByIdDesc(order).orElse(null));
         model.addAttribute("nextStates", vendorOrderService.nextStatesForVendor(order.getStatus()));
         return "vendor/order-detail";
+    }
+
+    /**
+     * Hoa don cua don hang, ban cua chu cua hang. Dung chung mot trang voi hoa don
+     * cua khach nen hai ben nhin thay cung mot noi dung.
+     */
+    @GetMapping("/{id}/invoice")
+    public String invoice(@PathVariable Long id, Authentication authentication,
+                          Model model, RedirectAttributes redirectAttributes) {
+        Order order = vendorOrderService.requireOwnedOrder(authentication.getName(), id);
+        try {
+            invoiceService.requirePaid(order);
+        } catch (IllegalStateException ex) {
+            // trang vendor/order-detail hien loi qua bien formError
+            redirectAttributes.addFlashAttribute("formError", ex.getMessage());
+            return "redirect:/vendor/orders/" + id;
+        }
+        model.addAttribute("order", order);
+        model.addAttribute("shipment", vendorOrderService.shipmentOf(order));
+        model.addAttribute("payments", paymentRepository.findByOrder(order));
+        model.addAttribute("timeline", invoiceService.timelineOf(order));
+        model.addAttribute("backUrl", "/vendor/orders/" + id);
+        return "orderhistory/invoice";
     }
 
     @PostMapping("/{id}/status")

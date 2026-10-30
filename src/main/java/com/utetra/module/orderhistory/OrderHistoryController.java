@@ -72,6 +72,30 @@ public class OrderHistoryController {
         }
     }
 
+    /**
+     * Hoa don in duoc kem lich su nhan don. Chi mo duoc khi don da thanh toan:
+     * don COD la sau khi shipper giao xong.
+     */
+    @GetMapping("/{id}/invoice")
+    public String invoice(@PathVariable Long id,
+                          Principal principal,
+                          Model model,
+                          RedirectAttributes redirectAttributes) {
+        try {
+            User user = orderHistoryService.getRequiredUser(principal.getName());
+            Order order = orderHistoryService.getInvoiceOrder(user, id);
+
+            model.addAttribute("order", order);
+            model.addAttribute("shipment", orderHistoryService.getShipmentForOrder(order).orElse(null));
+            model.addAttribute("payments", orderHistoryService.getPaymentsForOrder(order));
+            model.addAttribute("timeline", orderHistoryService.timelineOf(order));
+            return "orderhistory/invoice";
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/orders/" + id;
+        }
+    }
+
     /** Xu ly yeu cau huy don hang tu khach. */
     @PostMapping("/{id}/cancel")
     public String cancelOrder(@PathVariable Long id,

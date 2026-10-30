@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -229,5 +230,44 @@ class VendorOrderServiceTest {
         assertEquals(1, orderService.itemsOf(order).size());
         assertEquals(shipment.getId(), orderService.shipmentOf(order).getId());
         assertEquals(2, orderService.nextStatesForVendor(OrderStatus.CONFIRMED).size());
+    }
+
+    // ============================================== hoa don ban cua Vendor
+
+    @Autowired com.utetra.module.invoice.InvoiceService invoiceService;
+
+    @Test
+    @DisplayName("Vendor xem duoc hoa don don cua shop minh khi don da thanh toan")
+    void vendorXemDuocHoaDonDonDaThanhToan() {
+        Order order = taoDon(shopOf("vendor1"), OrderStatus.DELIVERED,
+                PaymentMethod.COD, PaymentStatus.PAID);
+        taoShipment(order);
+
+        Order cuaToi = orderService.requireOwnedOrder("vendor1", order.getId());
+        invoiceService.requirePaid(cuaToi);
+        var lichSu = invoiceService.timelineOf(cuaToi);
+
+        assertFalse(lichSu.isEmpty());
+        assertEquals("Khách đặt hàng", lichSu.get(0).ten());
+    }
+
+    @Test
+    @DisplayName("Don chua thanh toan thi chua xuat duoc hoa don")
+    void donChuaThanhToanThiKhongCoHoaDon() {
+        Order order = taoDon(shopOf("vendor1"), OrderStatus.NEW,
+                PaymentMethod.COD, PaymentStatus.PENDING);
+
+        assertThrows(IllegalStateException.class,
+                () -> invoiceService.requirePaid(order));
+    }
+
+    @Test
+    @DisplayName("Vendor khac khong mo duoc hoa don don khong phai cua minh")
+    void vendorKhacKhongMoDuocHoaDon() {
+        Order order = taoDon(shopOf("vendor1"), OrderStatus.DELIVERED,
+                PaymentMethod.COD, PaymentStatus.PAID);
+
+        assertThrows(Exception.class,
+                () -> orderService.requireOwnedOrder("vendor2", order.getId()));
     }
 }

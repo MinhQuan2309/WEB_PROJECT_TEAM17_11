@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Hóa đơn</title>
+</head>
+<body>
+
+<th:block layout:fragment="styles">
+    <style>
+        /* Khi in: bỏ thanh điều hướng, chân trang và các nút bấm,
+           chỉ còn lại tờ hóa đơn. */
+        @media print {
+            nav, footer, .no-print { display: none !important; }
+            .invoice-sheet { border: 0 !important; box-shadow: none !important; }
+            body { background: #fff !important; }
+            a[href]::after { content: none !important; }
+        }
+        .invoice-sheet { max-width: 760px; margin: 0 auto; }
+        .timeline-dot {
+            width: .7rem; height: .7rem; border-radius: 50%;
+            background: #6c8ebf; margin-top: .45rem; flex: 0 0 auto;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <a class="btn btn-sm btn-outline-secondary"
+           th:href="@{${backUrl != null ? backUrl : '/orders/' + order.id}}">
+            Quay lại chi tiết đơn
+        </a>
+        <button class="btn btn-sm btn-primary" onclick="window.print()">In hóa đơn / Lưu PDF</button>
+    </div>
+
+    <div class="invoice-sheet border rounded-3 p-4 bg-white">
+
+        <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+            <div>
+                <div class="h4 fw-bold mb-1">HÓA ĐƠN BÁN HÀNG</div>
+                <div class="text-muted small">UTETra — Chuỗi trà sữa</div>
+            </div>
+            <div class="text-end">
+                <div class="fw-semibold" th:text="${order.code}">UTE...</div>
+                <div class="small text-muted"
+                     th:text="${order.createdAt != null
+                               ? #temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm') : ''}">Ngày</div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+                <div class="text-uppercase small fw-bold text-muted mb-1">Bên bán</div>
+                <div class="fw-semibold" th:text="${order.shop.name}">Cửa hàng</div>
+                <div class="small text-muted" th:text="${order.shop.address}">Địa chỉ</div>
+                <div class="small text-muted" th:if="${order.shop.phone != null}"
+                     th:text="${order.shop.phone}">SĐT</div>
+            </div>
+            <div class="col-sm-6">
+                <div class="text-uppercase small fw-bold text-muted mb-1">Bên mua</div>
+                <div class="fw-semibold" th:text="${order.receiverName}">Người nhận</div>
+                <div class="small text-muted" th:text="${order.receiverPhone}">SĐT</div>
+                <div class="small text-muted" th:text="${order.shippingAddress}">Địa chỉ nhận</div>
+            </div>
+        </div>
+
+        <table class="table table-sm align-middle mb-3">
+            <thead class="table-light">
+            <tr>
+                <th style="width:3rem">#</th>
+                <th>Sản phẩm</th>
+                <th class="text-end" style="width:7rem">Đơn giá</th>
+                <th class="text-center" style="width:4rem">SL</th>
+                <th class="text-end" style="width:8rem">Thành tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item, it : ${order.items}">
+                <td th:text="${it.count}">1</td>
+                <td>
+                    <div th:text="${item.productName}">Tên món</div>
+                    <small class="text-muted"
+                           th:text="${item.variantName} + (${item.toppingsText != null and !item.toppingsText.isBlank()}
+                                    ? ' · ' + ${item.toppingsText} : '')">Size · topping</small>
+                </td>
+                <td class="text-end" th:text="${#numbers.formatInteger(item.unitPrice, 0, 'POINT')} + ' đ'">0 đ</td>
+                <td class="text-center" th:text="${item.quantity}">1</td>
+                <td class="text-end" th:text="${#numbers.formatInteger(item.lineTotal, 0, 'POINT')} + ' đ'">0 đ</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="row">
+            <div class="col-sm-6 offset-sm-6">
+                <div class="d-flex justify-content-between small">
+                    <span class="text-muted">Tạm tính</span>
+                    <span th:text="${#numbers.formatInteger(order.subtotal, 0, 'POINT')} + ' đ'">0 đ</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span class="text-muted">Phí giao hàng</span>
+                    <span th:text="${#numbers.formatInteger(order.shippingFee, 0, 'POINT')} + ' đ'">0 đ</span>
+                </div>
+                <div class="d-flex justify-content-between small"
+                     th:if="${order.discount != null and order.discount.signum() > 0}">
+                    <span class="text-muted">Giảm giá<span th:if="${order.voucher != null}"
+                          th:text="' (' + ${order.voucher.code} + ')'"></span></span>
+                    <span th:text="'-' + ${#numbers.formatInteger(order.discount, 0, 'POINT')} + ' đ'">0 đ</span>
+                </div>
+                <div class="d-flex justify-content-between border-top pt-2 mt-2 fw-bold">
+                    <span>Tổng cộng</span>
+                    <span th:text="${#numbers.formatInteger(order.total, 0, 'POINT')} + ' đ'">0 đ</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top mt-3 pt-3 d-flex flex-wrap gap-4">
+            <div>
+                <div class="text-uppercase small fw-bold text-muted mb-1">Hình thức thanh toán</div>
+                <div th:text="${order.paymentMethod.label}">COD</div>
+            </div>
+            <div>
+                <div class="text-uppercase small fw-bold text-muted mb-1">Tình trạng</div>
+                <span class="badge text-bg-success" th:text="${order.paymentStatus.label}">Đã thanh toán</span>
+            </div>
+            <div th:if="${shipment != null and shipment.trackingCode != null}">
+                <div class="text-uppercase small fw-bold text-muted mb-1">Mã vận đơn</div>
+                <div th:text="${shipment.trackingCode}">TRK...</div>
+            </div>
+        </div>
+
+        <div class="border-top mt-3 pt-3">
+            <div class="text-uppercase small fw-bold text-muted mb-2">Lịch sử nhận đơn</div>
+
+            <div class="d-flex gap-2 mb-2" th:each="moc : ${timeline}">
+                <div class="timeline-dot"></div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-semibold small" th:text="${moc.ten}">Mốc</span>
+                        <span class="small text-muted"
+                              th:text="${moc.thoiDiem != null
+                                        ? #temporals.format(moc.thoiDiem, 'dd/MM/yyyy HH:mm') : ''}">Thời điểm</span>
+                    </div>
+                    <div class="small text-muted" th:text="${moc.ghiChu}">Ghi chú</div>
+                </div>
+            </div>
+
+            <p class="small text-muted mb-0" th:if="${timeline.isEmpty()}">
+                Chưa có mốc nào được ghi nhận.
+            </p>
+        </div>
+
+        <p class="text-center text-muted small mt-4 mb-0">
+            Cảm ơn quý khách đã mua hàng tại UTETra.
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>

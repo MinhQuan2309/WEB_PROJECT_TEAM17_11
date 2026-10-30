@@ -19,7 +19,14 @@
                                 : (${order.status.name() == 'NEW'} ? 'text-bg-warning' : 'text-bg-info'))"
                   th:text="${order.status.label}">Trạng thái</span>
         </h1>
-        <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor/orders}">Danh sách đơn</a>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-primary"
+               th:if="${order.paymentStatus.name() == 'PAID'}"
+               th:href="@{/vendor/orders/{id}/invoice(id=${order.id})}">
+                <i class="bi bi-receipt me-1"></i> Xem hóa đơn
+            </a>
+            <a class="btn btn-sm btn-outline-secondary" th:href="@{/vendor/orders}">Danh sách đơn</a>
+        </div>
     </div>
 
     <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>

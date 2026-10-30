@@ -88,4 +88,76 @@ class OrderHistoryServiceTest {
         assertEquals(OrderStatus.RETURNED_REFUNDED, returned.getStatus());
         assertTrue(returned.getNote().contains("Giao sai vi tra sua"));
     }
+
+    // ============================================== hoa don
+
+    /** Dung lai cac buoc dat hang cua bai tren de co mot don COD moi. */
+    private Order datMotDonCod(User khach) {
+        cartService.clearCart(khach);
+
+        Product p = productRepository.findAll().get(0);
+        ProductVariant v = variantRepository.findByProduct(p).get(0);
+
+        AddToCartRequest addReq = new AddToCartRequest();
+        addReq.setProductId(p.getId());
+        addReq.setVariantId(v.getId());
+        addReq.setQuantity(1);
+        cartService.addToCart(khach, addReq);
+
+        AddressFormRequest addrReq = new AddressFormRequest();
+        addrReq.setReceiverName("Hoang Van Khach");
+        addrReq.setPhone("0901234567");
+        addrReq.setStreet("01 Vo Van Ngan");
+        addrReq.setWard("Linh Chieu");
+        addrReq.setDistrict("Thu Duc");
+        addrReq.setProvince("TP.HCM");
+        addrReq.setDefaultAddress(true);
+        Address savedAddr = accountService.saveAddress(khach, addrReq);
+
+        CheckoutRequest req = new CheckoutRequest();
+        req.setAddressId(savedAddr.getId());
+        req.setPaymentMethod(PaymentMethod.COD);
+        return checkoutService.placeOrders(khach, req).get(0);
+    }
+
+    @Test
+    void donChuaThanhToanThiChuaXuatDuocHoaDon() {
+        User khach = orderHistoryService.getRequiredUser("khach");
+        Order don = datMotDonCod(khach);
+
+        assertEquals(PaymentStatus.PENDING, don.getPaymentStatus());
+        assertThrows(IllegalStateException.class,
+                () -> orderHistoryService.getInvoiceOrder(khach, don.getId()));
+    }
+
+    @Test
+    void donCodDaGiaoXongThiXuatDuocHoaDonKemLichSu() {
+        User khach = orderHistoryService.getRequiredUser("khach");
+        Order don = datMotDonCod(khach);
+
+        // Shipper giao xong: he thong tu danh dau da thanh toan cho don COD.
+        don.setStatus(OrderStatus.DELIVERED);
+        don.setPaymentStatus(PaymentStatus.PAID);
+        orderRepository.save(don);
+
+        Order hoaDon = orderHistoryService.getInvoiceOrder(khach, don.getId());
+        assertEquals(don.getId(), hoaDon.getId());
+
+        var lichSu = orderHistoryService.timelineOf(hoaDon);
+        assertFalse(lichSu.isEmpty(), "Hoa don phai co it nhat moc dat hang");
+        assertEquals("Khách đặt hàng", lichSu.get(0).ten());
+    }
+
+    @Test
+    void khongXemDuocHoaDonCuaNguoiKhac() {
+        User khach = orderHistoryService.getRequiredUser("khach");
+        User nguoiKhac = orderHistoryService.getRequiredUser("vendor1");
+        Order don = datMotDonCod(khach);
+        don.setStatus(OrderStatus.DELIVERED);
+        don.setPaymentStatus(PaymentStatus.PAID);
+        orderRepository.save(don);
+
+        assertThrows(Exception.class,
+                () -> orderHistoryService.getInvoiceOrder(nguoiKhac, don.getId()));
+    }
 }

@@ -1,6 +1,7 @@
 package com.utetra.module.orderhistory;
 
 import com.utetra.entity.*;
+import com.utetra.module.invoice.InvoiceService;
 import com.utetra.module.orderstatus.OrderActor;
 import com.utetra.module.orderstatus.OrderStatusService;
 import com.utetra.repository.*;
@@ -27,6 +28,7 @@ public class OrderHistoryService {
     private final VoucherRepository voucherRepository;
     private final UserRepository userRepository;
     private final OrderStatusService orderStatusService;
+    private final InvoiceService invoiceService;
 
     public OrderHistoryService(OrderRepository orderRepository,
                                PaymentRepository paymentRepository,
@@ -34,7 +36,8 @@ public class OrderHistoryService {
                                ProductRepository productRepository,
                                VoucherRepository voucherRepository,
                                UserRepository userRepository,
-                               OrderStatusService orderStatusService) {
+                               OrderStatusService orderStatusService,
+                               InvoiceService invoiceService) {
         this.orderRepository = orderRepository;
         this.paymentRepository = paymentRepository;
         this.shipmentRepository = shipmentRepository;
@@ -42,6 +45,7 @@ public class OrderHistoryService {
         this.voucherRepository = voucherRepository;
         this.userRepository = userRepository;
         this.orderStatusService = orderStatusService;
+        this.invoiceService = invoiceService;
     }
 
     @Transactional(readOnly = true)
@@ -92,6 +96,25 @@ public class OrderHistoryService {
     @Transactional(readOnly = true)
     public List<Payment> getPaymentsForOrder(Order order) {
         return paymentRepository.findByOrder(order);
+    }
+
+    // ===================================================== hoa don
+
+    /**
+     * Lay don de xuat hoa don cho khach. Kiem tra quyen so huu truoc,
+     * roi uy quyen phan noi dung cho InvoiceService dung chung voi khu Vendor.
+     */
+    @Transactional(readOnly = true)
+    public Order getInvoiceOrder(User customer, Long orderId) {
+        Order order = getCustomerOrder(customer, orderId);
+        invoiceService.requirePaid(order);
+        return order;
+    }
+
+    /** Lich su nhan don in kem hoa don. */
+    @Transactional(readOnly = true)
+    public List<InvoiceService.InvoiceStep> timelineOf(Order order) {
+        return invoiceService.timelineOf(order);
     }
 
     /** Khach huy don khi don dang o trang thai NEW, dong thoi hoan lai luot ban va luot dung voucher. */
