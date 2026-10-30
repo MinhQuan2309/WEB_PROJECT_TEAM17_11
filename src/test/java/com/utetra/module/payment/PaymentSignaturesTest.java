@@ -36,9 +36,9 @@ class PaymentSignaturesTest {
     }
 
     @Test
-    @DisplayName("Ma hoa RFC 3986: khoang trang thanh %20 chu khong phai dau +")
-    void maHoaRfc3986() {
-        assertEquals("Thanh%20toan%20don%20hang", PaymentSignatures.urlEncode("Thanh toan don hang"));
+    @DisplayName("Ma hoa giong ban mau VNPAY: khoang trang thanh dau + chu khong phai %20")
+    void maHoaGiongVnpay() {
+        assertEquals("Thanh+toan+don+hang", PaymentSignatures.urlEncode("Thanh toan don hang"));
         assertEquals("a%2Fb%3Dc", PaymentSignatures.urlEncode("a/b=c"));
     }
 

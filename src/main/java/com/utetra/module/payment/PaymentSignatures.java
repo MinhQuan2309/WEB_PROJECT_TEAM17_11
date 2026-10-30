@@ -44,8 +44,15 @@ final class PaymentSignatures {
      * Ma hoa theo RFC 3986 (khoang trang thanh %20).
      * VNPAY/MOMO deu tinh chu ky tren chuoi da ma hoa, nen phai dung chung ham nay.
      */
+    /**
+     * Ma hoa theo dung cach VNPAY lam trong ban mau Java cua ho:
+     * URLEncoder.encode(...) giu nguyen dau '+' cho khoang trang.
+     *
+     * Truoc day ham nay doi '+' thanh '%20' (RFC 3986). Khi do chuoi ky cua minh
+     * khac chuoi ky VNPAY tu tinh o phia ho, nen cong bao "Sai chu ky" (code=70).
+     */
     static String urlEncode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     /** Sap xep tham so theo ten (TreeMap) va bo cac tham so rong / chu ky. */
