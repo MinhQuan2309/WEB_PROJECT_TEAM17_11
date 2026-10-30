@@ -26,6 +26,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByRole(Role role);
 
+    /** Danh sach ung vien shipper cho khu Manager: nguoi dung thuong va shipper hien co. */
+    List<User> findByRoleInOrderByUsernameAsc(java.util.Collection<Role> roles);
+
     /** Dung cho trang quan ly user cua Admin/Manager. */
     @Query("""
             select u from User u

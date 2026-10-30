@@ -41,6 +41,30 @@ public class ManagerDashboardController {
         return "manager/users";
     }
 
+    /** Trang phan cong shipper: dat hoac go vai shipper cho tai khoan nguoi dung. */
+    @GetMapping("/shippers")
+    public String shippers(Principal principal, Model model) {
+        var actor = scopeService.requireActor(principal.getName());
+        model.addAttribute("candidates", scopeService.shipperCandidates());
+        return "manager/shippers";
+    }
+
+    @PostMapping("/shippers/{id}/toggle")
+    public String toggleShipper(@PathVariable Long id, Principal principal, RedirectAttributes ra) {
+        try {
+            var actor = scopeService.requireActor(principal.getName());
+            var user = scopeService.toggleShipperRole(actor, id);
+            ra.addFlashAttribute("successMessage",
+                    user.getRole() == com.utetra.entity.Role.SHIPPER
+                            ? "Da dat " + user.getUsername() + " lam shipper"
+                            : "Da go vai shipper cua " + user.getUsername());
+        } catch (org.springframework.security.access.AccessDeniedException
+                 | IllegalStateException ex) {
+            ra.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/manager/shippers";
+    }
+
     @GetMapping("/products")
     public String products(@RequestParam(defaultValue = "0") int page,
                            Principal principal, Model model) {

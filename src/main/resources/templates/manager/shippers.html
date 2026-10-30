@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="vi">
+<head>
+    <title>Phân công shipper</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <h1 class="h4 mb-1">Phân công shipper</h1>
+            <p class="text-muted mb-0 small">Đặt tài khoản người dùng thường làm shipper, hoặc gỡ vai shipper khi không còn đơn đang giao.</p>
+        </div>
+        <div class="btn-group btn-group-sm">
+            <a class="btn btn-outline-secondary" th:href="@{/manager}">Tổng quan</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/shops}">Kiểm duyệt shop</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/users}">Chủ shop</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/shippers}">Shipper</a>
+            <a class="btn btn-outline-secondary" th:href="@{/manager/products}">Sản phẩm</a>
+        </div>
+    </div>
+
+    <div class="alert alert-success py-2" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger py-2" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <p class="text-muted small">
+        Danh sách chỉ gồm người dùng thường và shipper hiện có. Tài khoản Admin, Manager
+        và chủ cửa hàng không hiện ở đây để tránh đổi nhầm vai.
+    </p>
+
+    <p class="text-muted small" th:if="${candidates.isEmpty()}">
+        Chưa có tài khoản nào phù hợp để phân công.
+    </p>
+
+    <div class="table-responsive" th:unless="${candidates.isEmpty()}">
+        <table class="table table-sm align-middle">
+            <thead>
+            <tr>
+                <th style="width:3rem">#</th>
+                <th>Tài khoản</th>
+                <th>Liên hệ</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+                <th style="width:12rem">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u, it : ${candidates}">
+                <td th:text="${it.count}">1</td>
+                <td>
+                    <div class="fw-semibold" th:text="${u.fullName}">Họ tên</div>
+                    <small class="text-muted" th:text="${u.username}">tendangnhap</small>
+                </td>
+                <td>
+                    <div class="small" th:text="${u.email}">email</div>
+                    <small class="text-muted" th:text="${u.phone}">SĐT</small>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${u.role.name() == 'SHIPPER'} ? 'text-bg-primary' : 'text-bg-secondary'"
+                          th:text="${u.role}">USER</span>
+                </td>
+                <td>
+                    <span class="badge text-bg-danger" th:if="${u.locked}">Đang khoá</span>
+                    <span class="badge text-bg-warning text-dark" th:if="${!u.locked and !u.enabled}">Chưa kích hoạt</span>
+                    <span class="badge text-bg-success" th:if="${!u.locked and u.enabled}">Bình thường</span>
+                </td>
+                <td>
+                    <form method="post" th:action="@{'/manager/shippers/' + ${u.id} + '/toggle'}">
+                        <button class="btn btn-sm"
+                                th:classappend="${u.role.name() == 'SHIPPER'} ? 'btn-outline-secondary' : 'btn-outline-primary'"
+                                th:text="${u.role.name() == 'SHIPPER'} ? 'Gỡ vai shipper' : 'Đặt làm shipper'">
+                            Đặt làm shipper
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -83,6 +83,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     /** Thong ke cua shipper theo trang thai (tuan 5). */
     long countByShipperAndStatus(User shipper, OrderStatus status);
 
+    /** Don dang do dang cua mot shipper, dung khi go vai shipper. */
+    long countByShipperAndStatusIn(User shipper, java.util.Collection<OrderStatus> statuses);
+
     /** Don cua shipper trong khoang thoi gian, dung cho thong ke COD (tuan 5). */
     @Query("""
             select o from Order o

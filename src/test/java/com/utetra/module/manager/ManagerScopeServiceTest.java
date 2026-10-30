@@ -170,4 +170,62 @@ class ManagerScopeServiceTest {
         assertEquals(0, summary.productCount());
         assertTrue(scopeService.productsOf(managerMoi, 0).isEmpty());
     }
+
+    // ============================================== phan cong shipper
+
+    @Test
+    void managerDatDuocNguoiDungThuongLamShipper() {
+        User nguoiThuong = newUser("ung_vien_shipper", Role.USER);
+
+        User sauKhiDat = scopeService.toggleShipperRole(manager, nguoiThuong.getId());
+
+        assertEquals(Role.SHIPPER, sauKhiDat.getRole());
+    }
+
+    @Test
+    void managerGoDuocVaiShipperKhiKhongCondonDangGiao() {
+        User shipper = newUser("shipper_roi_ranh", Role.SHIPPER);
+
+        User sauKhiGo = scopeService.toggleShipperRole(manager, shipper.getId());
+
+        assertEquals(Role.USER, sauKhiGo.getRole());
+    }
+
+    @Test
+    void khongDungToiVaiVendorHoacManager() {
+        User chuShop = newUser("chu_shop_khong_doi", Role.VENDOR);
+        User managerKhac = newUser("manager_khong_doi", Role.MANAGER);
+
+        assertThrows(IllegalStateException.class,
+                () -> scopeService.toggleShipperRole(manager, chuShop.getId()));
+        assertThrows(IllegalStateException.class,
+                () -> scopeService.toggleShipperRole(manager, managerKhac.getId()));
+    }
+
+    @Test
+    void khongTuDoiVaiTroCuaChinhMinh() {
+        assertThrows(IllegalStateException.class,
+                () -> scopeService.toggleShipperRole(manager, manager.getId()));
+    }
+
+    @Test
+    void nguoiDungThuongKhongDuocPhanCongShipper() {
+        User khach = newUser("khach_thuong_khong_duoc", Role.USER);
+        User ungVien = newUser("ung_vien_khac", Role.USER);
+
+        assertThrows(AccessDeniedException.class,
+                () -> scopeService.toggleShipperRole(khach, ungVien.getId()));
+    }
+
+    @Test
+    void danhSachUngVienChiGomNguoiDungThuongVaShipper() {
+        newUser("ung_vien_danh_sach", Role.USER);
+
+        var ungVien = scopeService.shipperCandidates();
+
+        assertFalse(ungVien.isEmpty());
+        assertTrue(ungVien.stream().allMatch(u -> u.getRole() == Role.USER
+                        || u.getRole() == Role.SHIPPER),
+                "Danh sach khong duoc chua ADMIN, MANAGER hay VENDOR");
+    }
 }
