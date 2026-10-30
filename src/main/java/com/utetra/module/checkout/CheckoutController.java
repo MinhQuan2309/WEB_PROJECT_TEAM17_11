@@ -103,8 +103,17 @@ public class CheckoutController {
             List<Order> orders = checkoutService.placeOrders(user, checkoutRequest);
             String joinedCodes = orders.stream().map(Order::getCode).collect(Collectors.joining(","));
 
-            if (checkoutRequest.getPaymentMethod() == PaymentMethod.VNPAY
-                    || checkoutRequest.getPaymentMethod() == PaymentMethod.MOMO) {
+            // VNPAY da co khoa sandbox that nen di thang vao module payment cua Thien.
+            // MOMO chua co khoa merchant nen van dung man hinh cong mo phong.
+            if (checkoutRequest.getPaymentMethod() == PaymentMethod.VNPAY) {
+                if (orders.size() > 1) {
+                    redirectAttributes.addFlashAttribute("successMessage",
+                            "Giỏ hàng được tách thành " + orders.size() + " đơn. Thanh toán lần lượt"
+                            + " từng đơn, các đơn còn lại xem trong Lịch sử mua hàng.");
+                }
+                return "redirect:/payment/checkout/" + orders.get(0).getId();
+            }
+            if (checkoutRequest.getPaymentMethod() == PaymentMethod.MOMO) {
                 return "redirect:/checkout/payment-gateway?codes=" + joinedCodes
                         + "&method=" + checkoutRequest.getPaymentMethod().name();
             }
